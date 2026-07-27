@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PE-LINE, veleprodaja sanitarija i grijanja, Petrokov d.o.o.</title>
+<meta name="description" content="PE-LINE distribuira sanitarije, grijanje i hlađenje za vodoinstalatere, izvođače i investitore. Petrokov d.o.o. na tržištu od 1993. godine.">
+<meta name="theme-color" content="#0E4F5F">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+
+/* =========================================================
+   TOKENS
+========================================================= */
+:root{
+  --petrol: #0E4F5F;
+  --petrol-dark: #0A3C48;
+  --champagne: #C6A46A;
+  --cyan: #39AFC3;
+  --cream: #F7F4EF;
+  --ink: #1D2329;
+  --ink-muted: rgba(29, 35, 41, 0.68);
+  --near-black: #0F1317;
+
+  --pill-bg: #FFFFFF;
+  --pill-border: rgba(29, 35, 41, 0.12);
+  --hairline: rgba(29, 35, 41, 0.14);
+
+  --container: 1400px;
+  --gutter: clamp(1.25rem, 4vw, 3rem);
+  --section-gap: clamp(6rem, 12vw, 11rem);
+  --radius-panel: clamp(22px, 3vw, 40px);
+
+  --fs-display: clamp(2.75rem, 1.6rem + 5vw, 7.5rem);
+  --fs-h2: clamp(2rem, 1.5rem + 2vw, 3.25rem);
+  --fs-h2-lg: clamp(2.25rem, 1.5rem + 3vw, 4rem);
+  --fs-stat: clamp(3rem, 1.5rem + 5vw, 6rem);
+  --fs-body: clamp(1rem, 0.95rem + 0.2vw, 1.125rem);
+
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* =========================================================
+   RESET
+========================================================= */
+*, *::before, *::after{ box-sizing: border-box; }
+html{ scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce){ html{ scroll-behavior: auto; } }
+
+body{
+  margin: 0;
+  overflow-x: hidden;
+  font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: var(--ink);
+  background: var(--cream);
+  font-size: var(--fs-body);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+img{ max-width: 100%; display: block; }
+ul{ list-style: none; margin: 0; padding: 0; }
+a{ color: inherit; text-decoration: none; }
+h1, h2, h3, p{ margin: 0; }
+button{ font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
+
+section[id], footer[id]{ scroll-margin-top: 92px; }
+
+:focus-visible{
+  outline: 2px solid var(--petrol);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+.site-footer :focus-visible{
+  outline-color: var(--champagne);
+}
+
+.visually-hidden{
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
+.skip-link{
+  position: fixed;
+  top: -60px;
+  left: 1rem;
+  z-index: 200;
+  background: var(--ink);
+  color: var(--cream);
+  padding: 0.75rem 1.25rem;
+  border-radius: 999px;
+  font-weight: 600;
+  transition: top .2s var(--ease);
+}
+.skip-link:focus{ top: 1rem; }
+
+/* =========================================================
+   LAYOUT HELPERS
+========================================================= */
+.container{
+  width: 100%;
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+/* =========================================================
+   BUTTONS (one radius family: pill. two variants only)
+========================================================= */
+.btn{
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  padding: 0.9rem 1.85rem;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  line-height: 1;
+  white-space: nowrap;
+  transition: background-color .25s var(--ease), border-color .25s var(--ease), transform .2s var(--ease), box-shadow .25s var(--ease);
+}
+.btn-primary{
+  background: var(--petrol);
+  color: var(--cream);
+  box-shadow: 0 12px 24px -12px rgba(14, 79, 95, 0.55);
+}
+.btn-primary:hover{ background: var(--petrol-dark); }
+.btn-primary:active{ transform: scale(0.97); }
+
+.btn-soft{
+  background: var(--pill-bg);
+  color: var(--ink);
+  border: 1px solid var(--pill-border);
+}
+.btn-soft:hover{ border-color: rgba(29, 35, 41, 0.3); }
+.btn-soft:active{ transform: scale(0.97); }
+.btn-soft .arrow{
+  color: var(--champagne);
+  transition: transform .25s var(--ease);
+}
+.btn-soft:hover .arrow{ transform: translateX(4px); }
+
+/* =========================================================
+   KICKER (max one per page)
+========================================================= */
+.kicker{
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 1.1rem;
+  margin-bottom: 1.5rem;
+  border-radius: 999px;
+  background: var(--pill-bg);
+  border: 1px solid rgba(198, 164, 106, 0.45);
+  color: var(--ink);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* =========================================================
+   IMAGE PANELS
+========================================================= */
+.img-panel{
+  border-radius: var(--radius-panel);
+  overflow: hidden;
+  background: #e7e2d8;
+}
+.img-panel img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* =========================================================
+   REVEAL ANIMATION
+========================================================= */
+@media (prefers-reduced-motion: no-preference){
+  .reveal{
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity .9s var(--ease), transform .9s var(--ease);
+  }
+  .reveal.is-visible{
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (prefers-reduced-motion: reduce){
+  .reveal{ opacity: 1; transform: none; }
+}
+
+/* =========================================================
+   NAV
+========================================================= */
+.site-header{
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(247, 244, 239, 0.88);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(29, 35, 41, 0.08);
+}
+.nav{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 68px;
+  max-height: 80px;
+  padding-block: 0.6rem;
+}
+.nav-logo{ display: inline-flex; align-items: center; }
+.nav-logo img{ height: 30px; width: auto; }
+
+.nav-toggle{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  position: relative;
+  border-radius: 999px;
+}
+.nav-toggle-bars,
+.nav-toggle-bars::before,
+.nav-toggle-bars::after{
+  content: "";
+  position: absolute;
+  width: 20px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--ink);
+  transition: transform .3s var(--ease), opacity .3s var(--ease), background-color .3s var(--ease);
+}
+.nav-toggle-bars{ top: 50%; left: 50%; transform: translate(-50%, -50%); }
+.nav-toggle-bars::before{ transform: translateY(-6px); }
+.nav-toggle-bars::after{ transform: translateY(6px); }
+.site-header.is-open .nav-toggle-bars{ background: transparent; }
+.site-header.is-open .nav-toggle-bars::before{ transform: translateY(0) rotate(45deg); }
+.site-header.is-open .nav-toggle-bars::after{ transform: translateY(0) rotate(-45deg); }
+
+.nav-menu{
+  position: fixed;
+  inset: 68px 0 0 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 2rem;
+  padding: 2.5rem var(--gutter);
+  background: var(--cream);
+  opacity: 0;
+  transform: translateY(-12px);
+  pointer-events: none;
+  transition: opacity .25s var(--ease), transform .25s var(--ease);
+  overflow-y: auto;
+}
+.site-header.is-open .nav-menu{
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+.nav-links{
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+.nav-links a{ transition: color .2s var(--ease); }
+.nav-links a:hover{ color: var(--petrol); }
+.nav-cta{ align-self: flex-start; }
+
+@media (min-width: 1024px){
+  .nav-toggle{ display: none; }
+  .nav-menu{
+    position: static;
+    inset: auto;
+    flex-direction: row;
+    align-items: center;
+    gap: 2.75rem;
+    padding: 0;
+    background: none;
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+    overflow: visible;
+  }
+  .nav-links{
+    flex-direction: row;
+    gap: 2.5rem;
+    font-size: 0.95rem;
+  }
+  .nav-cta{ align-self: auto; }
+}
+
+/* =========================================================
+   HERO (overlapping headline + image, layered)
+========================================================= */
+.hero{
+  padding-top: clamp(2rem, 5vw, 4rem);
+  padding-bottom: var(--section-gap);
+}
+.hero-copy{ max-width: 640px; position: relative; z-index: 2; }
+.hero-title{
+  font-size: var(--fs-display);
+  font-weight: 800;
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+  margin-bottom: 1.75rem;
+}
+.hero-sub{
+  font-size: 1.15rem;
+  line-height: 1.6;
+  color: var(--ink-muted);
+  max-width: 460px;
+  margin-bottom: 2.25rem;
+}
+.hero-media{
+  margin-top: 2.75rem;
+  aspect-ratio: 16 / 10;
+  box-shadow: 0 40px 70px -30px rgba(15, 19, 23, 0.3);
+}
+
+@media (min-width: 1024px){
+  .hero-inner{
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    align-items: start;
+    column-gap: 1.5rem;
+  }
+  .hero-copy{ max-width: none; padding-top: 1rem; }
+  .hero-media{
+    position: relative;
+    z-index: 1;
+    aspect-ratio: 4 / 5;
+    margin-top: 2rem;
+    margin-left: -9%;
+  }
+}
+
+/* =========================================================
+   FEATURE ZIGZAG (A: image left / text right, B: reversed)
+========================================================= */
+.feature{ padding-block: var(--section-gap); }
+.feature-grid{
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.5rem;
+}
+.feature-media{ aspect-ratio: 4 / 5; }
+.feature-content h2{
+  font-size: var(--fs-h2);
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  margin-bottom: 1.25rem;
+}
+.feature-content p{
+  color: var(--ink-muted);
+  max-width: 460px;
+  margin-bottom: 2rem;
+}
+
+@media (min-width: 1024px){
+  .feature-grid{
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: clamp(3rem, 6vw, 6rem);
+  }
+  .feature--reverse .feature-media{ order: 2; }
+  .feature--reverse .feature-content{ order: 1; }
+}
+
+/* =========================================================
+   WHY / HAIRLINE LIST (sticky image beside divider list)
+========================================================= */
+.why{ padding-block: var(--section-gap); }
+.why-inner{
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 3rem;
+}
+.why-copy h2{
+  font-size: var(--fs-h2);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  max-width: 620px;
+  margin-bottom: 3rem;
+}
+.hairline-list{ border-top: 1px solid var(--hairline); }
+.hairline-list li{
+  border-bottom: 1px solid var(--hairline);
+  padding-block: clamp(1.5rem, 3vw, 2.25rem);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
+}
+.hairline-list h3{
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+.hairline-list p{
+  color: var(--ink-muted);
+  max-width: 480px;
+}
+.why-media{ aspect-ratio: 4 / 5; }
+
+@media (min-width: 640px){
+  .hairline-list li{
+    grid-template-columns: 0.9fr 1.4fr;
+    gap: 2rem;
+    align-items: baseline;
+  }
+}
+@media (min-width: 1024px){
+  .why-inner{
+    grid-template-columns: 1.3fr 0.9fr;
+    align-items: start;
+    gap: clamp(2.5rem, 5vw, 5rem);
+  }
+  .why-media{
+    position: sticky;
+    top: 6.5rem;
+  }
+}
+
+/* =========================================================
+   STATS
+========================================================= */
+.stats{ padding-block: var(--section-gap); }
+.stats-inner{
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: clamp(2.5rem, 6vw, 4rem) clamp(1.5rem, 4vw, 3rem);
+}
+.stat{ text-align: left; }
+.stat-number{
+  display: block;
+  font-size: var(--fs-stat);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  margin-bottom: 0.75rem;
+}
+.stat-number .accent{ color: var(--cyan); }
+.stat-label{
+  display: block;
+  font-size: 0.95rem;
+  color: var(--ink-muted);
+  font-weight: 500;
+}
+
+@media (min-width: 1024px){
+  .stats-inner{ grid-template-columns: repeat(4, 1fr); }
+}
+
+/* =========================================================
+   SHOWCASE (true full-bleed product moment)
+========================================================= */
+.showcase{ padding-block: var(--section-gap); }
+.showcase-copy{
+  max-width: 620px;
+  margin-inline: auto;
+  text-align: center;
+}
+.showcase-copy h2{
+  font-size: var(--fs-h2-lg);
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: -0.025em;
+  margin-bottom: 1.25rem;
+}
+.showcase-copy p{
+  color: var(--ink-muted);
+  margin-bottom: 2rem;
+}
+.showcase-media{
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  margin-top: clamp(3rem, 7vw, 5.5rem);
+  overflow: hidden;
+}
+.showcase-media img{
+  width: 100%;
+  height: clamp(320px, 45vw, 640px);
+  object-fit: cover;
+}
+
+/* =========================================================
+   FOOTER
+========================================================= */
+.site-footer{
+  background: var(--near-black);
+  color: rgba(247, 244, 239, 0.88);
+  padding-top: var(--section-gap);
+}
+.footer-inner{
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 3rem;
+  padding-bottom: clamp(3rem, 6vw, 5rem);
+}
+.footer-logo{ height: 26px; width: auto; margin-bottom: 1.25rem; }
+.footer-brand p{
+  color: rgba(247, 244, 239, 0.68);
+  max-width: 320px;
+  margin-bottom: 1.5rem;
+}
+.footer-contact{ display: flex; flex-direction: column; gap: 0.6rem; }
+.footer-contact a{ transition: color .2s var(--ease); }
+.footer-contact a:hover{ color: var(--champagne); }
+
+.footer-nav h3,
+.footer-cta h3{
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: rgba(247, 244, 239, 0.55);
+  margin-bottom: 1.25rem;
+}
+.footer-nav ul{ display: flex; flex-direction: column; gap: 0.85rem; }
+.footer-nav a{ transition: color .2s var(--ease); }
+.footer-nav a:hover{ color: var(--champagne); }
+
+.footer-cta p{
+  color: rgba(247, 244, 239, 0.68);
+  max-width: 320px;
+  margin-bottom: 1.5rem;
+}
+
+.footer-bottom{
+  border-top: 1px solid rgba(247, 244, 239, 0.14);
+  padding-block: 1.75rem;
+}
+.footer-bottom p{
+  font-size: 0.85rem;
+  color: rgba(247, 244, 239, 0.5);
+  text-align: center;
+}
+
+@media (min-width: 1024px){
+  .footer-inner{
+    grid-template-columns: 1.2fr 0.7fr 1fr;
+    gap: clamp(2rem, 5vw, 4rem);
+  }
+}
+
+/* =========================================================
+   BREAKPOINT REFINEMENTS
+========================================================= */
+@media (min-width: 640px){
+  .hero-sub{ max-width: 500px; }
+}
+@media (min-width: 1280px){
+  :root{ --gutter: clamp(2rem, 4vw, 3.5rem); }
+  .hero-media{ margin-left: -11%; }
+}
+
+</style>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Preskoči na sadržaj</a>
+
+<header class="site-header">
+  <div class="container nav">
+    <a href="#hero" class="nav-logo">
+      <img src="../public/images/categories/header/PE-LINE-logo.png" alt="PE-LINE logotip">
+    </a>
+
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-menu" aria-label="Otvori izbornik">
+      <span class="nav-toggle-bars" aria-hidden="true"></span>
+    </button>
+
+    <nav class="nav-menu" id="nav-menu">
+      <ul class="nav-links">
+        <li><a href="#proizvodi">Proizvodi</a></li>
+        <li><a href="#zasto-mi">Zašto mi</a></li>
+        <li><a href="#kontakt">Kontakt</a></li>
+      </ul>
+      <a class="btn btn-primary nav-cta" href="#kontakt">Zatražite ponudu</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- 1. HERO: overlapping headline + image, layered -->
+  <section class="hero" id="hero">
+    <div class="container hero-inner reveal">
+      <div class="hero-copy">
+        <h1 class="hero-title">Sanitarije, grijanje<br>i hlađenje. Bez čekanja.</h1>
+        <p class="hero-sub">Distribuiramo sanitarnu opremu, grijanje i hlađenje za više od 180 partnera diljem Hrvatske.</p>
+        <a class="btn btn-primary" href="#kontakt">Zatražite ponudu</a>
+      </div>
+      <div class="hero-media img-panel">
+        <img src="../public/images/hero-bathroom.jpg" alt="Moderna kupaonica opremljena sanitarijom iz PE-LINE ponude" loading="eager">
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. FEATURE ZIGZAG A: image left, text right -->
+  <section class="feature" id="proizvodi">
+    <div class="container feature-grid reveal">
+      <div class="feature-media img-panel">
+        <img src="../public/images/categories/sanitarije.jpg" alt="Asortiman sanitarne opreme i armatura na PE-LINE skladištu" loading="lazy">
+      </div>
+      <div class="feature-content">
+        <h2>Sanitarije za svaki prostor.</h2>
+        <p>Umivaonici, kade, tuš kabine i pripadajuća galanterija dostupni odmah sa skladišta, spremni za brzu isporuku diljem Hrvatske.</p>
+        <a class="btn btn-soft" href="#">Pogledajte katalog<span class="arrow" aria-hidden="true"> →</span></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. FEATURE ZIGZAG B: reversed, text left, image right -->
+  <section class="feature feature--reverse">
+    <div class="container feature-grid reveal">
+      <div class="feature-media img-panel">
+        <img src="../public/images/categories/grijanje-i-hladenje.jpg" alt="Sustavi grijanja i hlađenja postavljeni u modernom interijeru" loading="lazy">
+      </div>
+      <div class="feature-content">
+        <h2>Grijanje i hlađenje bez kompromisa.</h2>
+        <p>Radijatori, podno grijanje, ventilokonvektori i regulacija na jednom mjestu, uz stručno savjetovanje pri odabiru rješenja.</p>
+        <a class="btn btn-soft" href="#">Pogledajte katalog<span class="arrow" aria-hidden="true"> →</span></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. WHY PE-LINE: hairline divider list + sticky image panel -->
+  <section class="why" id="zasto-mi">
+    <div class="container why-inner reveal">
+      <div class="why-copy">
+        <span class="kicker">Zašto PE-LINE</span>
+        <h2>Razlozi zašto nam partneri vjeruju već tri desetljeća.</h2>
+        <ul class="hairline-list">
+          <li>
+            <h3>32 godine iskustva</h3>
+            <p>Distribuiramo sanitarnu opremu i sustave grijanja od 1993. godine.</p>
+          </li>
+          <li>
+            <h3>2.500+ artikala na skladištu</h3>
+            <p>Širok asortiman uvijek dostupan, bez čekanja na narudžbu dobavljača.</p>
+          </li>
+          <li>
+            <h3>24h prosječna isporuka</h3>
+            <p>Brza i pouzdana logistika diljem Hrvatske za sve naše partnere.</p>
+          </li>
+          <li>
+            <h3>180+ partnera</h3>
+            <p>Vodoinstalateri, izvođači i tvrtke koji nam vjeruju svaki dan.</p>
+          </li>
+          <li>
+            <h3>Stručno savjetovanje</h3>
+            <p>Naš tim pomaže u odabiru pravog rješenja za svaki projekt.</p>
+          </li>
+        </ul>
+      </div>
+      <div class="why-media img-panel">
+        <img src="../public/images/categories/radijatori.jpg" alt="Radijatori za sustave grijanja iz PE-LINE ponude" loading="lazy">
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. STATS: typographic grid, no cards, no borders -->
+  <section class="stats" id="stats">
+    <div class="container stats-inner reveal">
+      <div class="stat">
+        <span class="stat-number">32<span class="accent">+</span></span>
+        <span class="stat-label">godina iskustva</span>
+      </div>
+      <div class="stat">
+        <span class="stat-number">2.500<span class="accent">+</span></span>
+        <span class="stat-label">artikala na skladištu</span>
+      </div>
+      <div class="stat">
+        <span class="stat-number">180<span class="accent">+</span></span>
+        <span class="stat-label">partnera</span>
+      </div>
+      <div class="stat">
+        <span class="stat-number">24<span class="accent">h</span></span>
+        <span class="stat-label">prosječna isporuka</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. SHOWCASE: full-bleed single product moment -->
+  <section class="showcase">
+    <div class="container showcase-copy reveal">
+      <h2>Podno grijanje, ugodno u svakom prostoru.</h2>
+      <p>Sustavi podnog grijanja za nove i postojeće objekte, uz podršku pri projektiranju i izvedbi.</p>
+      <a class="btn btn-soft" href="#">Pogledajte katalog<span class="arrow" aria-hidden="true"> →</span></a>
+    </div>
+    <div class="showcase-media reveal">
+      <img src="../public/images/categories/podno-grijanje.jpg" alt="Sustav podnog grijanja postavljen u prostoriji prije završne obrade poda" loading="lazy">
+    </div>
+  </section>
+
+</main>
+
+<!-- 7. FOOTER -->
+<footer class="site-footer" id="kontakt">
+  <div class="container footer-inner reveal">
+    <div class="footer-brand">
+      <img class="footer-logo" src="../public/images/categories/footer/PE-LINE-white.png" alt="PE-LINE logotip" loading="lazy">
+      <p>Sanitarije, grijanje i hlađenje za profesionalce i investitore.</p>
+      <ul class="footer-contact">
+        <li><a href="tel:+38516473111">+385 1 6473 111</a></li>
+        <li><a href="mailto:info@pe-line.hr">info@pe-line.hr</a></li>
+        <li>Zagreb, Hrvatska</li>
+      </ul>
+    </div>
+
+    <nav class="footer-nav" aria-label="Navigacija u podnožju">
+      <h3>Navigacija</h3>
+      <ul>
+        <li><a href="#proizvodi">Proizvodi</a></li>
+        <li><a href="#zasto-mi">Zašto mi</a></li>
+        <li><a href="#kontakt">Kontakt</a></li>
+      </ul>
+    </nav>
+
+    <div class="footer-cta">
+      <h3>Trebate ponudu?</h3>
+      <p>Javite nam se i pripremit ćemo ponudu prilagođenu vašem projektu.</p>
+      <a class="btn btn-primary" href="mailto:info@pe-line.hr">Zatražite ponudu</a>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <p>&copy; 2026 Petrokov d.o.o. Sva prava pridržana.</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+
+  /* Mobile nav toggle */
+  var header = document.querySelector('.site-header');
+  var toggle = header.querySelector('.nav-toggle');
+  var menu = document.getElementById('nav-menu');
+
+  function closeMenu(){
+    header.classList.remove('is-open');
+    toggle.setAttribute('aria-expanded', 'false');
+    toggle.setAttribute('aria-label', 'Otvori izbornik');
+  }
+
+  function openMenu(){
+    header.classList.add('is-open');
+    toggle.setAttribute('aria-expanded', 'true');
+    toggle.setAttribute('aria-label', 'Zatvori izbornik');
+  }
+
+  toggle.addEventListener('click', function(){
+    if(header.classList.contains('is-open')){
+      closeMenu();
+    } else {
+      openMenu();
+    }
+  });
+
+  menu.querySelectorAll('a').forEach(function(link){
+    link.addEventListener('click', closeMenu);
+  });
+
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape' && header.classList.contains('is-open')){
+      closeMenu();
+      toggle.focus();
+    }
+  });
+
+  /* Scroll reveal via IntersectionObserver */
+  var revealEls = document.querySelectorAll('.reveal');
+
+  if('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting){
+          entry.target.classList.add('is-visible');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
+
+    revealEls.forEach(function(el){ io.observe(el); });
+  } else {
+    revealEls.forEach(function(el){ el.classList.add('is-visible'); });
+  }
+})();
+</script>
+
+</body>
+</html>
