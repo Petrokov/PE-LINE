@@ -194,13 +194,21 @@ export function ProductsHero({
 
   useEffect(() => stopMomentum, []);
 
+  useEffect(() => {
+    const el = scrollerRef.current;
+    const left = cardTargetLeft(active);
+    if (!el || left === null) return;
+    el.scrollTo({ left, behavior: "auto" });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const nameWords = activeName.split(" ");
   const midpoint = Math.ceil(nameWords.length / 2);
   const nameLine1 = nameWords.slice(0, midpoint).join(" ");
   const nameLine2 = nameWords.slice(midpoint).join(" ");
 
   return (
-    <section className="relative h-[100vh] min-h-[560px] w-full overflow-hidden bg-ink">
+    <section className="relative h-[76dvh] min-h-[560px] w-full overflow-hidden bg-petrol-dark">
       {/* Background photo — crossfades on category change */}
       <AnimatePresence mode="sync">
         <motion.div
@@ -226,14 +234,14 @@ export function ProductsHero({
         className="absolute inset-0 pointer-events-none"
         style={{
           background:
-            "linear-gradient(to top, rgba(10,12,14,0.88) 0%, rgba(10,12,14,0.45) 42%, rgba(10,12,14,0.05) 68%, transparent 100%)",
+            "linear-gradient(to top, rgba(10,58,71,0.90) 0%, rgba(10,58,71,0.48) 42%, rgba(10,58,71,0.06) 68%, transparent 100%)",
         }}
       />
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
           background:
-            "linear-gradient(to right, rgba(10,12,14,0.35) 0%, transparent 40%)",
+            "linear-gradient(to right, rgba(10,58,71,0.38) 0%, transparent 40%)",
         }}
       />
 
@@ -303,8 +311,11 @@ export function ProductsHero({
                 onPointerMove={onPointerMove}
                 onPointerUp={onPointerUp}
                 onPointerLeave={onPointerUp}
-                className="flex gap-3 overflow-x-auto scrollbar-hide snap-x snap-mandatory pb-1 cursor-grab active:cursor-grabbing select-none"
+                className="relative flex gap-3 overflow-x-auto scrollbar-hide pb-1 cursor-grab active:cursor-grabbing select-none"
               >
+                {/* Spacer — lets the first card reach true center */}
+                <div className="shrink-0" style={{ width: "calc(50% - 75px)" }} aria-hidden="true" />
+
                 {categories.map((category, i) => {
                   const name = localized(category, locale);
                   const image = categoryImage(category);
@@ -319,7 +330,7 @@ export function ProductsHero({
                         if (drag.current.moved) return;
                         goTo(i);
                       }}
-                      className="relative shrink-0 snap-start overflow-hidden rounded-2xl cursor-pointer"
+                      className="relative shrink-0 overflow-hidden rounded-2xl cursor-pointer"
                       style={{
                         width: "150px",
                         height: "190px",
@@ -354,6 +365,9 @@ export function ProductsHero({
                     </button>
                   );
                 })}
+
+                {/* Spacer — lets the last card reach true center */}
+                <div className="shrink-0" style={{ width: "calc(50% - 75px)" }} aria-hidden="true" />
               </div>
 
               {/* Arrows + counter */}

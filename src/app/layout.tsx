@@ -4,10 +4,10 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: {
     template: "%s | PE-LINE",
-    default: "PE-LINE — Pametna rješenja za grijanje, hlađenje i sanitarije",
+    default: "PE-LINE | Pametna rješenja za grijanje, hlađenje i sanitarije",
   },
   description:
-    "PE-LINE je distributer HVAC i kupaonskih proizvoda s 32 godine iskustva. Petrokov d.o.o.",
+    "PE-LINE je distributer HVAC i kupaonskih proizvoda s 32 godine iskustva u struci.",
 };
 
 export default function RootLayout({

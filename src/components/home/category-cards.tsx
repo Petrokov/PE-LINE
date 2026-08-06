@@ -71,7 +71,7 @@ export function CategoryCards({ categories, locale }: CategoryCardsProps) {
               color: "#0E4F5F",
             }}
           >
-            Naš asortiman
+            {t("categoriesEyebrow")}
           </span>
           <h2
             className="font-black text-ink tracking-[-0.03em] leading-[1.05] mb-3"

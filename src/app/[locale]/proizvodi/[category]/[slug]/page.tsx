@@ -22,6 +22,10 @@ export default async function ProductPage({
 
   const name = localized(product, locale as Locale);
   const categoryName = product.category ? localized(product.category, locale as Locale) : "";
+  const description =
+    (locale === "sl" && product.description_sl) ||
+    (locale === "en" && product.description_en) ||
+    product.description_hr;
 
   return (
     <div className="bg-bg section-lg">
@@ -109,6 +113,15 @@ export default async function ProductPage({
                   {t("inquiry")}
                 </ContactModalTrigger>
               </div>
+
+              {description && (
+                <div className="mb-8">
+                  <h3 className="text-sm font-semibold text-muted uppercase tracking-widest mb-4">
+                    {t("description")}
+                  </h3>
+                  <p className="text-ink leading-relaxed whitespace-pre-line">{description}</p>
+                </div>
+              )}
 
               {product.specs && product.specs.length > 0 && (
                 <ProductSpecs specs={product.specs} title={t("specs")} />

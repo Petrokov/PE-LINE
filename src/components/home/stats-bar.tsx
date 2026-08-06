@@ -41,7 +41,7 @@ export function StatsBar() {
               className="text-[10px] font-semibold uppercase tracking-[0.22em]"
               style={{ color: "rgba(255,255,255,0.35)" }}
             >
-              Petrokov d.o.o. — od 1993.
+              {t("statsEyebrow")}
             </p>
             <div>
               <p

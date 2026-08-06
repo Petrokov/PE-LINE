@@ -33,7 +33,15 @@ export default async function CategoryPage({
         </nav>
 
         <FadeIn className="mb-10">
-          <h1 className="text-4xl font-bold text-ink tracking-tight mb-3">{name}</h1>
+          <p className="text-xs font-semibold uppercase tracking-[0.15em] text-champagne mb-4">
+            {t("categoryEyebrow")}
+          </p>
+          <h1
+            className="font-black text-ink tracking-[-0.03em] leading-[1.05] mb-3"
+            style={{ fontSize: "clamp(2rem, 4vw, 3rem)" }}
+          >
+            {name}
+          </h1>
           {category.description_hr && (
             <p className="text-muted text-lg max-w-2xl leading-relaxed">
               {locale === "sl" ? category.description_sl :

@@ -53,52 +53,6 @@ const SLIDE_STATIC = [
   },
 ] as const;
 
-function MeshBackground() {
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
-      <div
-        className="hero-orb"
-        style={{
-          width: "min(75vw, 800px)",
-          height: "min(75vw, 800px)",
-          top: "-25%",
-          right: "-18%",
-          background:
-            "radial-gradient(circle at 50% 50%, rgba(14,79,95,0.32) 0%, rgba(14,79,95,0.10) 40%, transparent 70%)",
-          filter: "blur(72px)",
-          animation: "orb-float-1 22s ease-in-out infinite",
-        }}
-      />
-      <div
-        className="hero-orb"
-        style={{
-          width: "min(60vw, 660px)",
-          height: "min(60vw, 660px)",
-          bottom: "-18%",
-          left: "-14%",
-          background:
-            "radial-gradient(circle at 50% 50%, rgba(198,164,106,0.26) 0%, rgba(198,164,106,0.08) 45%, transparent 70%)",
-          filter: "blur(80px)",
-          animation: "orb-float-2 28s ease-in-out infinite",
-        }}
-      />
-      <div
-        className="hero-orb"
-        style={{
-          width: "min(42vw, 500px)",
-          height: "min(42vw, 500px)",
-          top: "38%",
-          right: "22%",
-          background:
-            "radial-gradient(circle at 50% 50%, rgba(57,175,195,0.13) 0%, transparent 70%)",
-          filter: "blur(64px)",
-          animation: "orb-float-3 34s ease-in-out infinite",
-        }}
-      />
-    </div>
-  );
-}
-
 type Slide = { id: string; image: string; bgGradient: string; accentHex: string; nameLine1: string; nameLine2: string; label: string };
 
 /* ── Shared carousel card — used on both tablet (full-width) and desktop (right column) ── */
@@ -414,8 +368,6 @@ export function HeroSection() {
       ref={sectionRef}
       className="relative min-h-[100dvh] lg:h-[100dvh] flex items-center lg:items-start 2xl:items-center py-20 md:py-24 lg:pt-32 lg:pb-12 xl:pt-32 xl:pb-16 2xl:py-28 overflow-hidden bg-bg"
     >
-      <MeshBackground />
-
       <div className="container-page relative z-10 w-full">
         <div className="grid grid-cols-1 lg:grid-cols-[1.12fr_0.88fr] gap-10 lg:gap-16 xl:gap-20 items-start lg:items-center">
 
@@ -436,7 +388,7 @@ export function HeroSection() {
                   color: "#0E4F5F",
                 }}
               >
-                Petrokov distribucija
+                {t("heroBadge")}
               </span>
               <span className="relative inline-flex w-3 h-3 items-center justify-center">
                 <span
@@ -512,35 +464,13 @@ export function HeroSection() {
                 </span>
               </Link>
 
-              {/* Social proof pill */}
+              {/* Project count */}
               <div className="flex items-center gap-2.5">
-                <div className="flex -space-x-2">
-                  {(["#4A6E7C", "#7A644A", "#4A7C6E"] as const).map(
-                    (color, i) => (
-                      <div
-                        key={i}
-                        className="w-6 h-6 md:w-7 md:h-7 rounded-full border-2 border-bg flex items-center justify-center shrink-0"
-                        style={{ background: color }}
-                      >
-                        <svg
-                          width="10"
-                          height="10"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          aria-hidden="true"
-                        >
-                          <circle cx="12" cy="8" r="4" fill="rgba(255,255,255,0.75)" />
-                          <path
-                            d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8"
-                            fill="rgba(255,255,255,0.5)"
-                          />
-                        </svg>
-                      </div>
-                    )
-                  )}
-                </div>
+                <span className="text-sm text-ink font-semibold">
+                  {t("statsProjects")}
+                </span>
                 <span className="text-xs text-muted font-medium">
-                  {t("statsProjects")} {t("statsProjectsLabel")}
+                  {t("statsProjectsLabel")}
                 </span>
               </div>
             </motion.div>
@@ -660,11 +590,9 @@ export function HeroSection() {
                 <div
                   className="rounded-[1.5rem] p-[5px] border"
                   style={{
-                    background: "rgba(247,244,239,0.97)",
+                    background: "#F7F4EF",
                     borderColor: "rgba(216,221,225,0.72)",
                     boxShadow: "0 24px 68px rgba(29,35,41,0.14)",
-                    backdropFilter: "blur(20px)",
-                    WebkitBackdropFilter: "blur(20px)",
                   }}
                 >
                   <div
@@ -729,32 +657,6 @@ export function HeroSection() {
                   </div>
                 </div>
               </motion.div>
-
-              {/* Depth accent dots — orbit animations */}
-              <div
-                className="absolute bottom-24 -right-4 w-3 h-3 rounded-full pointer-events-none"
-                style={{
-                  background: "#C6A46A",
-                  opacity: 0.85,
-                  animation: "dot-orbit-b 14s ease-in-out infinite",
-                }}
-              />
-              <div
-                className="absolute top-28 -left-4 w-2 h-2 rounded-full pointer-events-none"
-                style={{
-                  background: "#39AFC3",
-                  opacity: 0.7,
-                  animation: "dot-orbit-a 11s ease-in-out infinite",
-                }}
-              />
-              <div
-                className="absolute top-1/2 -right-6 w-1.5 h-1.5 rounded-full pointer-events-none"
-                style={{
-                  background: "#C6A46A",
-                  opacity: 0.5,
-                  animation: "dot-orbit-b 18s ease-in-out infinite reverse",
-                }}
-              />
             </div>
           </motion.div>
 

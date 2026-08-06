@@ -152,7 +152,7 @@ export function SiteFooter({ locale: _locale, settings }: SiteFooterProps) {
               className="text-sm leading-relaxed mb-6"
               style={{ color: "rgba(255,255,255,0.45)" }}
             >
-              Stručna podrška, tehničke konzultacije, upiti o dostavi — tu smo
+              Stručna podrška, tehničke konzultacije, upiti o dostavi: tu smo
               svakim radnim danom od 8:00 do 16:00.
             </p>
             <button
@@ -191,7 +191,7 @@ export function SiteFooter({ locale: _locale, settings }: SiteFooterProps) {
             className="text-xs"
             style={{ color: "rgba(255,255,255,0.28)" }}
           >
-            © {year} {t("footer.company")} — {t("footer.rights")}
+            © {year} {t("footer.company")}. {t("footer.rights")}
           </p>
           <div className="flex items-center gap-6">
             <button
