@@ -70,6 +70,9 @@
     "roomSelectorLabel": "YOUR HOME, ROOM BY ROOM",
     "roomSelectorTitle": "Choose a space, we'll suggest the solution.",
     "roomSelectorHint": "Interactive: click a room.",
+    "roomBackToHouse": "Back to the house",
+    "roomCardClose": "Close",
+    "roomPickerLabel": "Choose a room",
     "rooms": {
       "bathroom": {
         "tab": "Bathroom",

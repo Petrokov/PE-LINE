@@ -70,6 +70,9 @@
     "roomSelectorLabel": "VAŠ DOM, SOBA PO SOBA",
     "roomSelectorTitle": "Odaberite prostor, predložit ćemo rješenje.",
     "roomSelectorHint": "Interaktivno: kliknite sobu.",
+    "roomBackToHouse": "Natrag na kuću",
+    "roomCardClose": "Zatvori",
+    "roomPickerLabel": "Odaberite prostoriju",
     "rooms": {
       "bathroom": {
         "tab": "Kupaonica",
