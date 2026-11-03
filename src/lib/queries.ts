@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { createPublicClient } from "@/lib/supabase/public";
 import { SETTINGS_ID } from "@/lib/constants";
 import { STATIC_PRODUCTS } from "@/lib/static-products";
@@ -114,7 +115,8 @@ export async function getAllCategories(): Promise<Category[]> {
   return data ?? [];
 }
 
-export async function getCategoryBySlug(
+// cache(): the category page's metadata and body ask for the same category in one render.
+export const getCategoryBySlug = cache(async function getCategoryBySlug(
   slug: string
 ): Promise<(Category & { subcategories: Category[]; products: Product[] }) | null> {
   const supabase = createPublicClient();
@@ -149,7 +151,7 @@ export async function getCategoryBySlug(
     subcategories: subcategories ?? [],
     products: products && products.length > 0 ? products : getStaticProducts(category),
   };
-}
+});
 
 export const PRODUCTS_PER_PAGE = 24;
 
@@ -281,6 +283,24 @@ export async function getCategoryPreviews(perCategory = 4): Promise<Record<strin
   return previews;
 }
 
+/** Every active product's URL parts and last change, for the sitemap. */
+export async function getSitemapProducts(): Promise<
+  Array<{ slug: string; categorySlug: string; updatedAt: string }>
+> {
+  const supabase = createPublicClient();
+  const rows =
+    (unwrap(
+      await supabase
+        .from("products")
+        .select("slug, updated_at, category:categories(slug)")
+        .eq("active", true)
+        .limit(10000)
+    ) as unknown as Array<{ slug: string; updated_at: string; category: { slug: string } | null }> | null) ?? [];
+  return rows
+    .filter((row) => row.category?.slug)
+    .map((row) => ({ slug: row.slug, categorySlug: row.category!.slug, updatedAt: row.updated_at }));
+}
+
 /** Product count per category id, for the filter's option labels. */
 export async function getProductCounts(): Promise<Record<string, number>> {
   const supabase = createPublicClient();
@@ -291,7 +311,8 @@ export async function getProductCounts(): Promise<Record<string, number>> {
   return Object.fromEntries((data ?? []).map((row) => [row.id, row.products[0]?.count ?? 0]));
 }
 
-export async function getProductBySlug(
+// cache(): generateMetadata and the page ask for the same product in one render.
+export const getProductBySlug = cache(async function getProductBySlug(
   categorySlug: string,
   slug: string
 ): Promise<Product | null> {
@@ -314,7 +335,7 @@ export async function getProductBySlug(
   // Not a real product: resolve it only as a display product the category is currently listing.
   const category = await getCategoryBySlug(categorySlug);
   return category?.products.find((p) => p.slug === slug) ?? null;
-}
+});
 
 export async function getTeam(): Promise<TeamMember[]> {
   const supabase = createPublicClient();

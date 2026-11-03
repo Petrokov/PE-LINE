@@ -1,5 +1,6 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { getTeam } from "@/lib/queries";
+import { localeAlternates, metaDescription } from "@/lib/seo";
 import { FadeIn, FadeInLeft, FadeInRight } from "@/components/ui/motion-wrapper";
 import { ButtonLink } from "@/components/ui/button";
 import { ContactModalTrigger } from "@/components/contact/contact-modal-trigger";
@@ -10,7 +11,11 @@ import Image from "next/image";
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "about" });
-  return { title: t("title") };
+  return {
+    title: t("title"),
+    description: metaDescription(t("heroSubtitle")),
+    alternates: localeAlternates(locale, "/o-nama"),
+  };
 }
 
 export default async function ONamePage({

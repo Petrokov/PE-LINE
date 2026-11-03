@@ -7,20 +7,54 @@ import { ProductInquiryActions } from "@/components/inquiry/product-inquiry-acti
 import { FadeInLeft, FadeInRight } from "@/components/ui/motion-wrapper";
 import { Link } from "@/lib/navigation";
 import { ChevronRight } from "lucide-react";
-import type { Locale } from "@/lib/types";
+import type { Metadata } from "next";
+import type { Locale, Product } from "@/lib/types";
 import { localized } from "@/lib/types";
 import { formatSapDescription } from "@/lib/sap-description";
+import { localeAlternates, metaDescription } from "@/lib/seo";
 
 // Rendered on first visit, then cached (ISR).
 export async function generateStaticParams() {
   return [];
 }
 
-export default async function ProductPage({
-  params,
-}: {
-  params: Promise<{ locale: string; category: string; slug: string }>;
-}) {
+type Params = Promise<{ locale: string; category: string; slug: string }>;
+
+/** Translation first, then the hand-written Croatian text, then the description imported from SAP. */
+function productDescription(product: Product, locale: string) {
+  return (
+    (locale === "sl" && product.description_sl) ||
+    (locale === "en" && product.description_en) ||
+    product.description_hr ||
+    (product.sap_description ? formatSapDescription(product.sap_description) : null)
+  );
+}
+
+export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
+  const { locale, category: categorySlug, slug } = await params;
+  const product = await getProductBySlug(categorySlug, slug);
+  if (!product) return {};
+
+  const name = localized(product, locale as Locale);
+  const categoryName = product.category ? localized(product.category, locale as Locale) : "";
+  const description =
+    metaDescription(productDescription(product, locale)) ?? [name, categoryName].filter(Boolean).join(" – ");
+  const image = product.images?.[0];
+
+  return {
+    title: name,
+    description,
+    alternates: localeAlternates(locale, `/proizvodi/${categorySlug}/${slug}`),
+    openGraph: {
+      title: name,
+      description,
+      type: "website",
+      ...(image ? { images: [{ url: image, alt: name }] } : {}),
+    },
+  };
+}
+
+export default async function ProductPage({ params }: { params: Params }) {
   const { locale, category: categorySlug, slug } = await params;
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: "products" });
@@ -30,12 +64,7 @@ export default async function ProductPage({
 
   const name = localized(product, locale as Locale);
   const categoryName = product.category ? localized(product.category, locale as Locale) : "";
-  // Hand-written text wins; otherwise the description imported from SAP (Croatian only).
-  const description =
-    (locale === "sl" && product.description_sl) ||
-    (locale === "en" && product.description_en) ||
-    product.description_hr ||
-    (product.sap_description ? formatSapDescription(product.sap_description) : null);
+  const description = productDescription(product, locale);
 
   return (
     <div className="bg-bg section-lg">

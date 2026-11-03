@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { SITE_URL } from "@/lib/seo";
 
 export const metadata: Metadata = {
+  // Absolute URLs for canonical, hreflang and Open Graph images.
+  metadataBase: new URL(SITE_URL),
   title: {
     template: "%s | PE-LINE",
-    default: "PE-LINE | Pametna rješenja za grijanje, hlađenje i sanitarije",
+    default: "PE-LINE | Pametna rješenja za grijanje i hlađenje",
   },
   description:
     "PE-LINE je distributer HVAC i kupaonskih proizvoda s 32 godine iskustva u struci.",

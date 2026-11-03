@@ -1,5 +1,6 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { getDownloads } from "@/lib/queries";
+import { localeAlternates } from "@/lib/seo";
 import { FadeIn } from "@/components/ui/motion-wrapper";
 import { FileDown } from "lucide-react";
 import type { Locale } from "@/lib/types";
@@ -8,7 +9,11 @@ import { localized } from "@/lib/types";
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "downloads" });
-  return { title: t("title") };
+  return {
+    title: t("title"),
+    description: t("subtitle"),
+    alternates: localeAlternates(locale, "/preuzimanja"),
+  };
 }
 
 export default async function PreuzimanjaPage({

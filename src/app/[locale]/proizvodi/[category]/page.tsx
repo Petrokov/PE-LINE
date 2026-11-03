@@ -5,12 +5,35 @@ import { ProductCard } from "@/components/products/product-card";
 import { FadeIn } from "@/components/ui/motion-wrapper";
 import { Link } from "@/lib/navigation";
 import { ChevronRight } from "lucide-react";
+import type { Metadata } from "next";
 import type { Locale } from "@/lib/types";
 import { localized } from "@/lib/types";
+import { localeAlternates, metaDescription } from "@/lib/seo";
 
 export async function generateStaticParams() {
   const categories = await getCategories();
   return categories.map((c) => ({ category: c.slug }));
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string; category: string }>;
+}): Promise<Metadata> {
+  const { locale, category: categorySlug } = await params;
+  const category = await getCategoryBySlug(categorySlug);
+  if (!category) return {};
+
+  const name = localized(category, locale as Locale);
+  const text =
+    (locale === "sl" && category.description_sl) ||
+    (locale === "en" && category.description_en) ||
+    category.description_hr;
+  return {
+    title: name,
+    description: metaDescription(text) ?? name,
+    alternates: localeAlternates(locale, `/proizvodi/${categorySlug}`),
+  };
 }
 
 export default async function CategoryPage({

@@ -11,19 +11,44 @@ import { ProductCard } from "@/components/products/product-card";
 import { CategoryFilter } from "@/components/products/category-filter";
 import { Pagination } from "@/components/products/pagination";
 import { ProductsHero } from "@/components/products/products-hero";
+import type { Metadata } from "next";
 import type { Locale } from "@/lib/types";
 import { localized } from "@/lib/types";
-
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
-  const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "products" });
-  const categories = await getCategories();
-  const names = categories.map((c) => localized(c, locale as Locale)).join(", ");
-  return { title: t("title"), description: t("metaDescription", { categories: names }) };
-}
+import { localeAlternates } from "@/lib/seo";
 
 function firstParam(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
+}
+
+export async function generateMetadata({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const query = await searchParams;
+  const t = await getTranslations({ locale, namespace: "products" });
+  const categories = await getCategories();
+  const names = categories.map((c) => localized(c, locale as Locale)).join(", ");
+
+  // The filtered listing repeats the category page, so it points there; search
+  // results are not worth indexing; other pages of the listing are their own URL.
+  const category = categories.find((c) => c.slug === firstParam(query.kategorija));
+  const page = Number.parseInt(firstParam(query.stranica) ?? "1", 10) || 1;
+  const path = category
+    ? `/proizvodi/${category.slug}`
+    : page > 1
+      ? `/proizvodi?stranica=${page}`
+      : "/proizvodi";
+
+  return {
+    title: t("title"),
+    description: t("metaDescription", { categories: names }),
+    alternates: localeAlternates(locale, path),
+    ...(firstParam(query.trazi) ? { robots: { index: false, follow: true } } : {}),
+  };
 }
 
 export default async function ProizvodiPage({
