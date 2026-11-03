@@ -21,6 +21,8 @@ const FALLBACK_IMAGE_BY_SLUG: Record<string, string> = {
   "dimovodi": "/images/categories/dimovodi.jpg",
   "regulacije": "/images/categories/regulacije.jpg",
   "ormarici": "/images/categories/ormarcici.jpg",
+  "bojleri": "/images/categories/bojleri.jpg",
+  "instalacije": "/images/categories/instalacije.jpg",
 };
 
 const HERO_FALLBACK = "/images/categories/grijanje-i-hladenje.jpg";
