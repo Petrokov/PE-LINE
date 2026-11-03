@@ -172,11 +172,12 @@ function compactCode(value: string) {
 }
 
 function matchesSearch(
-  product: Pick<Product, "name_hr" | "name_sl" | "name_en" | "specs">,
+  product: Pick<Product, "name_hr" | "name_sl" | "name_en" | "sap_name" | "specs">,
   search: string
 ) {
   const term = searchable(search.trim());
-  const names = [product.name_hr, product.name_sl, product.name_en].filter(Boolean) as string[];
+  // The SAP name too, since buyers often type the ERP wording ("EL.KOMBI", "MIŠ VENTIL").
+  const names = [product.name_hr, product.name_sl, product.name_en, product.sap_name].filter(Boolean) as string[];
   if (names.some((name) => searchable(name).includes(term))) return true;
 
   const code = compactCode(search);
@@ -208,7 +209,7 @@ export async function getAllProducts({
     // search as text. The catalogue is a few hundred rows, so filter it here.
     let query = supabase
       .from("products")
-      .select(`${LISTING_COLUMNS}, specs`)
+      .select(`${LISTING_COLUMNS}, specs, sap_name`)
       .eq("active", true)
       .order("name_hr", { ascending: true });
     if (categoryId) query = query.eq("category_id", categoryId);

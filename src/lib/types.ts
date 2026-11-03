@@ -39,6 +39,8 @@ export type Product = LocalizedDoc & {
   description_en?: string | null;
   /** Raw B2B description from SAP; shown when no hand-written description is set. */
   sap_description?: string | null;
+  /** Raw SAP article name; name_hr is the edited web name. */
+  sap_name?: string | null;
   unit?: string | null;
 };
 

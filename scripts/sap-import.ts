@@ -104,8 +104,11 @@ type DbProduct = {
   slug: string;
   sap_item_code: string | null;
   name_hr: string;
+  sap_name: string | null;
   category_id: string;
   sap_description: string | null;
+  description_sl: string | null;
+  description_en: string | null;
   unit: string | null;
   active: boolean;
 };
@@ -113,7 +116,9 @@ type DbProduct = {
 type SyncRow = {
   sap_item_code: string;
   slug: string;
+  /** Web name: kept as it is on existing products, the SAP name on new ones. */
   name_hr: string;
+  sap_name: string;
   sap_description: string | null;
   unit: string | null;
   category_id: string;
@@ -304,13 +309,20 @@ async function main() {
   if (!migrated && !DRY_RUN) {
     throw new Error("Column products.sap_item_code is missing: apply supabase/migrations/0006_sap_sync.sql first");
   }
+  if (rawProducts.length && !("sap_name" in rawProducts[0]) && !DRY_RUN) {
+    throw new Error("Column products.sap_name is missing: apply supabase/migrations/0007_sap_name.sql first");
+  }
   const products: DbProduct[] = rawProducts.map((p) => ({
     id: p.id as string,
     slug: p.slug as string,
     sap_item_code: p.sap_item_code ?? p.specs?.find((s) => s.key === "Šifra artikla")?.value ?? null,
     name_hr: p.name_hr as string,
+    // Before migration 0007 the name column still held the SAP name.
+    sap_name: p.sap_name ?? (p.name_hr as string),
     category_id: p.category_id as string,
     sap_description: p.sap_description ?? null,
+    description_sl: p.description_sl ?? null,
+    description_en: p.description_en ?? null,
     unit: p.unit ?? null,
     active: p.active ?? true,
   }));
@@ -346,7 +358,14 @@ async function main() {
   const inserts: Array<SyncRow & { specs: Array<{ key: string; value: string }> }> = [];
   const notInSap: SelectionEntry[] = [];
   const unknownCategory: SelectionEntry[] = [];
-  const changes = { name: [] as string[], category: [] as string[], deactivated: [] as string[], reactivated: [] as string[] };
+  const changes = {
+    name: [] as string[],
+    category: [] as string[],
+    deactivated: [] as string[],
+    reactivated: [] as string[],
+    // SAP text changed under an existing translation (data/product-translations.json).
+    staleTranslation: [] as string[],
+  };
   let descriptionAdded = 0;
   let descriptionChanged = 0;
   let withDescription = 0;
@@ -380,7 +399,9 @@ async function main() {
     const row: SyncRow = {
       sap_item_code: entry.code,
       slug,
-      name_hr: name,
+      // The web name is edited by hand; SAP only sets it on a new product.
+      name_hr: existing?.name_hr ?? name,
+      sap_name: name,
       sap_description: description,
       unit: normalizeUnit(sap.NazivJM),
       category_id: categoryId,
@@ -390,7 +411,9 @@ async function main() {
     };
 
     if (existing) {
-      if (existing.name_hr !== name) changes.name.push(`${entry.code}: "${existing.name_hr}" → "${name}"`);
+      if (existing.sap_name !== name) {
+        changes.name.push(`${entry.code}: "${existing.sap_name}" → "${name}" (web name "${existing.name_hr}" kept)`);
+      }
       if (existing.category_id !== categoryId) {
         changes.category.push(
           `${entry.code} ${name}: ${categorySlugById.get(existing.category_id) ?? "?"} → ${entry.categorySlug}`
@@ -399,7 +422,10 @@ async function main() {
       if (existing.active && !active) changes.deactivated.push(`${entry.code} ${name}`);
       if (!existing.active && active) changes.reactivated.push(`${entry.code} ${name}`);
       if (!existing.sap_description && description) descriptionAdded += 1;
-      else if (existing.sap_description && description && existing.sap_description !== description) descriptionChanged += 1;
+      else if (existing.sap_description && description && existing.sap_description !== description) {
+        descriptionChanged += 1;
+        if (existing.description_sl || existing.description_en) changes.staleTranslation.push(`${entry.code} ${name}`);
+      }
       updates.push(row);
     } else {
       inserts.push({
@@ -427,7 +453,8 @@ async function main() {
     log(`${title} (${lines.length}):`);
     for (const line of lines) log(`  ${line}`);
   };
-  section("Name changes", changes.name);
+  section("SAP name changes", changes.name);
+  section("SAP description changed, translation needs a look", changes.staleTranslation);
   section("Category changes", changes.category);
   section("Deactivated, inactive in SAP", changes.deactivated);
   section("Reactivated", changes.reactivated);
