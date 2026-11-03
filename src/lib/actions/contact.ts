@@ -14,6 +14,16 @@ const schema = z.object({
 
 export type InquiryResult = { ok: boolean; message: string };
 
+// Visitor input goes into the HTML mail body, so it must not be able to inject markup.
+function escapeHtml(value: string) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 export async function submitInquiry(
   _prev: InquiryResult | null,
   formData: FormData
@@ -65,13 +75,13 @@ export async function submitInquiry(
         message,
       ].join("\n"),
       html: `
-        <p><strong>Ime:</strong> ${name}</p>
-        <p><strong>Email:</strong> <a href="mailto:${email}">${email}</a></p>
-        <p><strong>Telefon:</strong> ${phone || "-"}</p>
-        <p><strong>Tvrtka:</strong> ${company || "-"}</p>
+        <p><strong>Ime:</strong> ${escapeHtml(name)}</p>
+        <p><strong>Email:</strong> <a href="mailto:${escapeHtml(email)}">${escapeHtml(email)}</a></p>
+        <p><strong>Telefon:</strong> ${escapeHtml(phone || "-")}</p>
+        <p><strong>Tvrtka:</strong> ${escapeHtml(company || "-")}</p>
         <hr/>
         <p><strong>Poruka:</strong></p>
-        <p>${message.replace(/\n/g, "<br/>")}</p>
+        <p>${escapeHtml(message).replace(/\n/g, "<br/>")}</p>
       `,
     });
 

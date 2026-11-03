@@ -17,7 +17,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="hr" suppressHydrationWarning>
-      <body className="min-h-full flex flex-col antialiased bg-bg text-ink" suppressHydrationWarning>{children}</body>
+      <body className="min-h-dvh flex flex-col antialiased bg-bg text-ink" suppressHydrationWarning>{children}</body>
     </html>
   );
 }

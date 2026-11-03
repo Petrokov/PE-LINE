@@ -37,6 +37,9 @@ export type Product = LocalizedDoc & {
   description_hr?: string | null;
   description_sl?: string | null;
   description_en?: string | null;
+  /** Raw B2B description from SAP; shown when no hand-written description is set. */
+  sap_description?: string | null;
+  unit?: string | null;
 };
 
 export type GalleryImage = {

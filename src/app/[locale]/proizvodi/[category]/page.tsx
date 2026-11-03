@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
-import { getTranslations } from "next-intl/server";
-import { getCategoryBySlug } from "@/lib/queries";
+import { getTranslations, setRequestLocale } from "next-intl/server";
+import { getCategories, getCategoryBySlug } from "@/lib/queries";
 import { ProductCard } from "@/components/products/product-card";
 import { FadeIn } from "@/components/ui/motion-wrapper";
 import { Link } from "@/lib/navigation";
@@ -8,12 +8,18 @@ import { ChevronRight } from "lucide-react";
 import type { Locale } from "@/lib/types";
 import { localized } from "@/lib/types";
 
+export async function generateStaticParams() {
+  const categories = await getCategories();
+  return categories.map((c) => ({ category: c.slug }));
+}
+
 export default async function CategoryPage({
   params,
 }: {
   params: Promise<{ locale: string; category: string }>;
 }) {
   const { locale, category: categorySlug } = await params;
+  setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: "products" });
 
   const category = await getCategoryBySlug(categorySlug);

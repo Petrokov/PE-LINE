@@ -1,3 +1,4 @@
+import { setRequestLocale } from "next-intl/server";
 import { HeroSection } from "@/components/home/hero-section";
 import { StatsBar } from "@/components/home/stats-bar";
 import { CategoryCards } from "@/components/home/category-cards";
@@ -12,6 +13,7 @@ export default async function HomePage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
+  setRequestLocale(locale);
   const categories = await getCategories();
 
   return (

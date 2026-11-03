@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { submitInquiry, type InquiryResult } from "@/lib/actions/contact";
 import { Button } from "@/components/ui/button";
@@ -11,9 +11,18 @@ const initialState: InquiryResult | null = null;
 const fieldClass =
   "w-full bg-transparent border-0 border-b border-line text-ink text-sm pb-2 placeholder:text-muted/50 focus:outline-none focus:border-petrol transition-colors";
 
-export function ContactForm() {
+interface ContactFormProps {
+  prefillMessage?: string;
+  onSuccess?: () => void;
+}
+
+export function ContactForm({ prefillMessage = "", onSuccess }: ContactFormProps) {
   const t = useTranslations("contact");
   const [state, action, isPending] = useActionState(submitInquiry, initialState);
+
+  useEffect(() => {
+    if (state?.ok) onSuccess?.();
+  }, [state, onSuccess]);
 
   return (
     <form action={action} className="space-y-7">
@@ -47,7 +56,8 @@ export function ContactForm() {
         <textarea
           name="message"
           required
-          rows={3}
+          rows={prefillMessage ? 6 : 3}
+          defaultValue={prefillMessage}
           className={`${fieldClass} resize-none`}
           placeholder={t("messagePlaceholder")}
         />

@@ -1,13 +1,20 @@
 import { notFound } from "next/navigation";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { getProductBySlug } from "@/lib/queries";
 import { ProductSpecs } from "@/components/products/product-specs";
-import { ContactModalTrigger } from "@/components/contact/contact-modal-trigger";
+import { ProductGallery } from "@/components/products/product-gallery";
+import { ProductInquiryActions } from "@/components/inquiry/product-inquiry-actions";
 import { FadeInLeft, FadeInRight } from "@/components/ui/motion-wrapper";
 import { Link } from "@/lib/navigation";
 import { ChevronRight } from "lucide-react";
 import type { Locale } from "@/lib/types";
 import { localized } from "@/lib/types";
+import { formatSapDescription } from "@/lib/sap-description";
+
+// Rendered on first visit, then cached (ISR).
+export async function generateStaticParams() {
+  return [];
+}
 
 export default async function ProductPage({
   params,
@@ -15,17 +22,20 @@ export default async function ProductPage({
   params: Promise<{ locale: string; category: string; slug: string }>;
 }) {
   const { locale, category: categorySlug, slug } = await params;
+  setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: "products" });
 
-  const product = await getProductBySlug(slug);
+  const product = await getProductBySlug(categorySlug, slug);
   if (!product) notFound();
 
   const name = localized(product, locale as Locale);
   const categoryName = product.category ? localized(product.category, locale as Locale) : "";
+  // Hand-written text wins; otherwise the description imported from SAP (Croatian only).
   const description =
     (locale === "sl" && product.description_sl) ||
     (locale === "en" && product.description_en) ||
-    product.description_hr;
+    product.description_hr ||
+    (product.sap_description ? formatSapDescription(product.sap_description) : null);
 
   return (
     <div className="bg-bg section-lg">
@@ -44,48 +54,7 @@ export default async function ProductPage({
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
           {/* Slike */}
           <FadeInLeft>
-            <div className="space-y-3">
-              {product.images && product.images.length > 0 ? (
-                <>
-                  <div
-                    className="overflow-hidden bg-bg-secondary"
-                    style={{ borderRadius: "16px", aspectRatio: "4/3" }}
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={product.images[0]}
-                      alt={name}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  {product.images.length > 1 && (
-                    <div className="flex gap-2 overflow-x-auto pb-2">
-                      {product.images.slice(1, 5).map((img, i) => (
-                        <div
-                          key={i}
-                          className="shrink-0 w-20 h-20 overflow-hidden bg-bg-secondary"
-                          style={{ borderRadius: "10px", border: "1px solid #D8DDE1" }}
-                        >
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src={img}
-                            alt={`${name} ${i + 2}`}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </>
-              ) : (
-                <div
-                  className="bg-bg-secondary flex items-center justify-center"
-                  style={{ borderRadius: "16px", aspectRatio: "4/3" }}
-                >
-                  <p className="text-muted/50 text-sm">Bez fotografije</p>
-                </div>
-              )}
-            </div>
+            <ProductGallery images={product.images ?? []} name={name} />
           </FadeInLeft>
 
           {/* Detalji */}
@@ -109,9 +78,12 @@ export default async function ProductPage({
               )}
 
               <div className="mb-8">
-                <ContactModalTrigger variant="primary" size="lg" className="w-full sm:w-auto justify-center">
-                  {t("inquiry")}
-                </ContactModalTrigger>
+                <ProductInquiryActions
+                  slug={product.slug}
+                  categorySlug={categorySlug}
+                  title={name}
+                  imageUrl={product.images?.[0] ?? ""}
+                />
               </div>
 
               {description && (

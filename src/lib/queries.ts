@@ -1,5 +1,6 @@
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/public";
 import { SETTINGS_ID } from "@/lib/constants";
+import { STATIC_PRODUCTS } from "@/lib/static-products";
 import type { Category, Product, TeamMember, Download, SiteSettings } from "@/lib/types";
 
 const CATEGORY_COLUMNS =
@@ -16,8 +17,8 @@ const STATIC_CATEGORIES: Category[] = [
     sortOrder: 1,
   },
   {
-    id: "static-ormarcici", name_hr: "Ormarići", name_sl: "Omarice", name_en: "Cabinets",
-    slug: "ormarcici", icon: "Columns3", localImage: "/images/categories/ormarcici.jpg",
+    id: "static-ormarici", name_hr: "Ormarići", name_sl: "Omarice", name_en: "Cabinets",
+    slug: "ormarici", icon: "Columns3", localImage: "/images/categories/ormarcici.jpg",
     description_hr: "Razdjelni ormarići za podno grijanje i instalacijske sustave.",
     description_sl: "Razdelilne omarice za talno ogrevanje in instalacijske sisteme.",
     description_en: "Distribution cabinets for underfloor heating and installation systems.",
@@ -65,41 +66,69 @@ const STATIC_CATEGORIES: Category[] = [
   },
 ];
 
-export async function getCategories(): Promise<Category[]> {
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("categories")
-    .select(CATEGORY_COLUMNS)
-    .not("parent_id", "is", null)
-    .order("sort_order", { ascending: true });
+// Throw on query errors so ISR keeps serving the last good page instead of caching a degraded one.
+function unwrap({ data, error }: { data: unknown; error: { message: string } | null }) {
+  if (error) throw new Error(`Supabase query failed: ${error.message}`);
+  return data;
+}
 
-  return data && data.length > 0 ? (data as unknown as Category[]) : STATIC_CATEGORIES;
+// Display products from STATIC_PRODUCTS, used only while a category has no real products.
+function getStaticProducts(category: Category): Product[] {
+  return (STATIC_PRODUCTS[category.slug] ?? []).map((product) => ({
+    ...product,
+    id: `static-${product.slug}`,
+    featured: false,
+    categoryId: category.id,
+    category: {
+      id: category.id,
+      name_hr: category.name_hr,
+      name_sl: category.name_sl,
+      name_en: category.name_en,
+      slug: category.slug,
+    },
+  }));
+}
+
+export async function getCategories(): Promise<Category[]> {
+  const supabase = createPublicClient();
+  const data = unwrap(
+    await supabase
+      .from("categories")
+      .select(CATEGORY_COLUMNS)
+      .not("parent_id", "is", null)
+      .order("sort_order", { ascending: true })
+  ) as Category[] | null;
+
+  return data && data.length > 0 ? data : STATIC_CATEGORIES;
 }
 
 export async function getAllCategories(): Promise<Category[]> {
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("categories")
-    .select(CATEGORY_COLUMNS)
-    .order("sort_order", { ascending: true });
+  const supabase = createPublicClient();
+  const data = unwrap(
+    await supabase
+      .from("categories")
+      .select(CATEGORY_COLUMNS)
+      .order("sort_order", { ascending: true })
+  ) as Category[] | null;
 
-  return (data as unknown as Category[]) ?? [];
+  return data ?? [];
 }
 
 export async function getCategoryBySlug(
   slug: string
 ): Promise<(Category & { subcategories: Category[]; products: Product[] }) | null> {
-  const supabase = await createClient();
-  const { data: categoryRaw } = await supabase
-    .from("categories")
-    .select(CATEGORY_COLUMNS)
-    .eq("slug", slug)
-    .maybeSingle();
+  const supabase = createPublicClient();
+  const category = unwrap(
+    await supabase
+      .from("categories")
+      .select(CATEGORY_COLUMNS)
+      .eq("slug", slug)
+      .maybeSingle()
+  ) as Category | null;
 
-  if (!categoryRaw) return null;
-  const category = categoryRaw as unknown as Category;
+  if (!category) return null;
 
-  const [{ data: subcategories }, { data: products }] = await Promise.all([
+  const [subcategoriesRes, productsRes] = await Promise.all([
     supabase
       .from("categories")
       .select("id, name_hr, name_sl, name_en, slug, icon, sortOrder:sort_order")
@@ -109,65 +138,221 @@ export async function getCategoryBySlug(
       .from("products")
       .select("id, name_hr, name_sl, name_en, slug, images, price_range, featured")
       .eq("category_id", category.id)
+      .eq("active", true)
       .order("name_hr", { ascending: true }),
   ]);
+  const subcategories = unwrap(subcategoriesRes) as Category[] | null;
+  const products = unwrap(productsRes) as Product[] | null;
 
   return {
     ...category,
-    subcategories: (subcategories as unknown as Category[]) ?? [],
-    products: (products as unknown as Product[]) ?? [],
+    subcategories: subcategories ?? [],
+    products: products && products.length > 0 ? products : getStaticProducts(category),
   };
 }
 
-export async function getProductBySlug(slug: string): Promise<Product | null> {
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("products")
-    .select(
-      "id, name_hr, name_sl, name_en, slug, description_hr, description_sl, description_en, " +
-        "images, specs, price_range, featured, categoryId:category_id, " +
-        "category:categories(id, name_hr, name_sl, name_en, slug)"
-    )
-    .eq("slug", slug)
-    .maybeSingle();
+export const PRODUCTS_PER_PAGE = 24;
 
-  return data as unknown as Product | null;
+export type ProductPage = { items: Product[]; total: number; page: number; pageCount: number };
+
+const LISTING_COLUMNS =
+  "id, name_hr, name_sl, name_en, slug, images, price_range, featured, " +
+  "category:categories(id, name_hr, name_sl, name_en, slug)";
+
+const SEARCH_DIACRITICS = new RegExp("[\\u0300-\\u036f]", "g");
+
+/** Lowercase, without diacritics (đ included), so "grijac" finds "GRIJAČ". */
+function searchable(value: string) {
+  return value.normalize("NFD").replace(SEARCH_DIACRITICS, "").replace(/đ/gi, "d").toLowerCase();
+}
+
+/** Catalogue numbers are typed with or without their dashes, dots and spaces. */
+function compactCode(value: string) {
+  return searchable(value).replace(/[^a-z0-9]/g, "");
+}
+
+function matchesSearch(
+  product: Pick<Product, "name_hr" | "name_sl" | "name_en" | "specs">,
+  search: string
+) {
+  const term = searchable(search.trim());
+  const names = [product.name_hr, product.name_sl, product.name_en].filter(Boolean) as string[];
+  if (names.some((name) => searchable(name).includes(term))) return true;
+
+  const code = compactCode(search);
+  if (!code) return false;
+  return (product.specs ?? []).some(
+    (spec) => spec.key === "Kataloški broj" && compactCode(spec.value).includes(code)
+  );
+}
+
+/** One page of every product by name, optionally narrowed to one category and a search term. */
+export async function getAllProducts({
+  categoryId,
+  search,
+  page = 1,
+  pageSize = PRODUCTS_PER_PAGE,
+}: {
+  categoryId?: string;
+  /** Matches the product name or its catalogue number. */
+  search?: string;
+  page?: number;
+  pageSize?: number;
+} = {}): Promise<ProductPage> {
+  const supabase = createPublicClient();
+  const safePage = Math.max(1, Math.trunc(page) || 1);
+  const from = (safePage - 1) * pageSize;
+
+  if (search?.trim()) {
+    // The catalogue number lives inside the specs JSON, which PostgREST cannot
+    // search as text. The catalogue is a few hundred rows, so filter it here.
+    let query = supabase
+      .from("products")
+      .select(`${LISTING_COLUMNS}, specs`)
+      .eq("active", true)
+      .order("name_hr", { ascending: true });
+    if (categoryId) query = query.eq("category_id", categoryId);
+
+    const rows = (unwrap(await query) as unknown as Product[] | null) ?? [];
+    const matches = rows.filter((product) => matchesSearch(product, search));
+    return {
+      items: matches.slice(from, from + pageSize),
+      total: matches.length,
+      page: safePage,
+      pageCount: Math.max(1, Math.ceil(matches.length / pageSize)),
+    };
+  }
+
+  let query = supabase
+    .from("products")
+    .select(LISTING_COLUMNS, { count: "exact" })
+    .eq("active", true)
+    .order("name_hr", { ascending: true })
+    .range(from, from + pageSize - 1);
+  if (categoryId) query = query.eq("category_id", categoryId);
+
+  const { data, count, error } = await query;
+  // Asking past the last row is a PostgREST error, not an empty page; report it as one.
+  if (error && error.code !== "PGRST103") throw new Error(`Supabase query failed: ${error.message}`);
+
+  const total = count ?? 0;
+  return {
+    items: (data as unknown as Product[] | null) ?? [],
+    total,
+    page: safePage,
+    pageCount: Math.max(1, Math.ceil(total / pageSize)),
+  };
+}
+
+export type CategoryPreview = { count: number; products: Product[] };
+
+/**
+ * A few products per category for the products hero, keyed by category id.
+ * Products with a photo come first, then by name, so the preview shows the
+ * best-presented articles while most imported ones still have no image.
+ */
+export async function getCategoryPreviews(perCategory = 4): Promise<Record<string, CategoryPreview>> {
+  const supabase = createPublicClient();
+  const rows =
+    (unwrap(
+      await supabase
+        .from("products")
+        .select("id, name_hr, name_sl, name_en, slug, images, featured, specs, categoryId:category_id")
+        .eq("active", true)
+        .order("name_hr", { ascending: true })
+    ) as Product[] | null) ?? [];
+
+  const previews: Record<string, CategoryPreview> = {};
+  for (const product of rows) {
+    if (!product.categoryId) continue;
+    const preview = (previews[product.categoryId] ??= { count: 0, products: [] });
+    preview.count += 1;
+    preview.products.push(product);
+  }
+  for (const preview of Object.values(previews)) {
+    const rank = (p: Product) => (p.featured ? 0 : 1) + (p.images?.length ? 0 : 2);
+    preview.products = preview.products
+      .map((product, index) => ({ product, index }))
+      .sort((a, b) => rank(a.product) - rank(b.product) || a.index - b.index)
+      .slice(0, perCategory)
+      .map(({ product }) => product);
+  }
+  return previews;
+}
+
+/** Product count per category id, for the filter's option labels. */
+export async function getProductCounts(): Promise<Record<string, number>> {
+  const supabase = createPublicClient();
+  const data = unwrap(
+    await supabase.from("categories").select("id, products(count)").eq("products.active", true)
+  ) as Array<{ id: string; products: Array<{ count: number }> }> | null;
+
+  return Object.fromEntries((data ?? []).map((row) => [row.id, row.products[0]?.count ?? 0]));
+}
+
+export async function getProductBySlug(
+  categorySlug: string,
+  slug: string
+): Promise<Product | null> {
+  const supabase = createPublicClient();
+  const product = unwrap(
+    await supabase
+      .from("products")
+      .select(
+        "id, name_hr, name_sl, name_en, slug, description_hr, description_sl, description_en, " +
+          "images, specs, price_range, featured, categoryId:category_id, sap_description, unit, active, " +
+          "category:categories(id, name_hr, name_sl, name_en, slug)"
+      )
+      .eq("slug", slug)
+      .maybeSingle()
+  ) as (Product & { active: boolean }) | null;
+
+  // An article withdrawn in SAP keeps its row (and URL) but is no longer shown.
+  if (product) return product.active && product.category?.slug === categorySlug ? product : null;
+
+  // Not a real product: resolve it only as a display product the category is currently listing.
+  const category = await getCategoryBySlug(categorySlug);
+  return category?.products.find((p) => p.slug === slug) ?? null;
 }
 
 export async function getTeam(): Promise<TeamMember[]> {
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("team_members")
-    .select("id, name, role_hr, role_sl, role_en, photoUrl:photo_url, bio_hr, sortOrder:sort_order")
-    .order("sort_order", { ascending: true });
+  const supabase = createPublicClient();
+  const data = unwrap(
+    await supabase
+      .from("team_members")
+      .select("id, name, role_hr, role_sl, role_en, photoUrl:photo_url, bio_hr, sortOrder:sort_order")
+      .order("sort_order", { ascending: true })
+  ) as TeamMember[] | null;
 
-  return (data as unknown as TeamMember[]) ?? [];
+  return data ?? [];
 }
 
 export async function getDownloads(): Promise<Download[]> {
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("downloads")
-    .select(
-      "id, name_hr, name_sl, name_en, fileUrl:file_url, language, " +
-        "category:categories(id, name_hr, name_sl, name_en)"
-    )
-    .order("sort_order", { ascending: true });
+  const supabase = createPublicClient();
+  const data = unwrap(
+    await supabase
+      .from("downloads")
+      .select(
+        "id, name_hr, name_sl, name_en, fileUrl:file_url, language, " +
+          "category:categories(id, name_hr, name_sl, name_en)"
+      )
+      .order("sort_order", { ascending: true })
+  ) as Download[] | null;
 
-  return (data as unknown as Download[]) ?? [];
+  return data ?? [];
 }
 
 export async function getSettings(): Promise<SiteSettings | null> {
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("settings")
-    .select(
-      "siteName:site_name, logoUrl:logo_url, heroImageUrl:hero_image_url, phone, email, address, " +
-        "mapUrl:map_url, facebook, instagram, linkedin, youtube, " +
-        "footerText_hr:footer_text_hr, footerText_sl:footer_text_sl, footerText_en:footer_text_en"
-    )
-    .eq("id", SETTINGS_ID)
-    .maybeSingle();
-
-  return data as unknown as SiteSettings | null;
+  const supabase = createPublicClient();
+  return unwrap(
+    await supabase
+      .from("settings")
+      .select(
+        "siteName:site_name, logoUrl:logo_url, heroImageUrl:hero_image_url, phone, email, address, " +
+          "mapUrl:map_url, facebook, instagram, linkedin, youtube, " +
+          "footerText_hr:footer_text_hr, footerText_sl:footer_text_sl, footerText_en:footer_text_en"
+      )
+      .eq("id", SETTINGS_ID)
+      .maybeSingle()
+  ) as SiteSettings | null;
 }

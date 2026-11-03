@@ -1,4 +1,4 @@
-import { getTranslations } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { getDownloads } from "@/lib/queries";
 import { FadeIn } from "@/components/ui/motion-wrapper";
 import { FileDown } from "lucide-react";
@@ -17,6 +17,7 @@ export default async function PreuzimanjaPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
+  setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: "downloads" });
   const downloads = await getDownloads();
 

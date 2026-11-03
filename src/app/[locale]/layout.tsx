@@ -1,5 +1,5 @@
 import { NextIntlClientProvider } from "next-intl";
-import { getMessages } from "next-intl/server";
+import { getMessages, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import { SiteHeader } from "@/components/layout/site-header";
@@ -7,6 +7,9 @@ import { SiteFooter } from "@/components/layout/site-footer";
 import { ContactModalProvider } from "@/components/contact/contact-modal-context";
 import { ContactModal } from "@/components/contact/contact-modal";
 import { getSettings } from "@/lib/queries";
+
+// Pages are cached and re-rendered at most hourly; admin actions revalidate immediately.
+export const revalidate = 3600;
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -24,6 +27,7 @@ export default async function LocaleLayout({
   if (!routing.locales.includes(locale as "hr" | "sl" | "en")) {
     notFound();
   }
+  setRequestLocale(locale);
 
   const [messages, settings] = await Promise.all([
     getMessages(),

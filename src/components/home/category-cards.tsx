@@ -39,7 +39,6 @@ const FALLBACK_IMAGE_BY_SLUG: Record<string, string> = {
   "dimovodi": "/images/categories/dimovodi.jpg",
   "regulacije": "/images/categories/regulacije.jpg",
   "ormarici": "/images/categories/ormarcici.jpg",
-  "ormarcici": "/images/categories/ormarcici.jpg",
 };
 
 interface CategoryCardsProps {

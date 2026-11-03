@@ -5,7 +5,9 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "sap:import": "node scripts/sap-import.ts",
+    "sap:images": "node scripts/sap-images.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",

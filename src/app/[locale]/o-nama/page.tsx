@@ -1,10 +1,10 @@
-import { getTranslations } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { getTeam } from "@/lib/queries";
 import { FadeIn, FadeInLeft, FadeInRight } from "@/components/ui/motion-wrapper";
 import { ButtonLink } from "@/components/ui/button";
 import { ContactModalTrigger } from "@/components/contact/contact-modal-trigger";
 import { ValueCard } from "@/components/about/value-card";
-import { Shield, Clock, DollarSign, Headphones, Quote } from "lucide-react";
+import { Shield, Clock, DollarSign, Headphones, Quote, User } from "lucide-react";
 import Image from "next/image";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
@@ -19,6 +19,7 @@ export default async function ONamePage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
+  setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: "about" });
   const team = await getTeam();
 
@@ -215,9 +216,23 @@ export default async function ONamePage({
                   <FadeIn key={member.id} delay={i * 0.08}>
                     <div className="text-center">
                       <div
-                        className="w-24 h-24 mx-auto mb-4 bg-white overflow-hidden"
+                        className="relative w-24 h-24 mx-auto mb-4 bg-bg-secondary overflow-hidden"
                         style={{ borderRadius: "50%" }}
-                      />
+                      >
+                        {member.photoUrl ? (
+                          <Image
+                            src={member.photoUrl}
+                            alt={member.name}
+                            fill
+                            sizes="96px"
+                            className="object-cover"
+                          />
+                        ) : (
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <User size={32} strokeWidth={1.2} className="text-muted/40" />
+                          </div>
+                        )}
+                      </div>
                       <p className="font-semibold text-ink text-sm">{member.name}</p>
                       {role && <p className="text-xs text-muted mt-1">{role}</p>}
                     </div>

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/lib/navigation";
 import { LocaleSwitcher } from "./locale-switcher";
+import { InquiryBadge } from "@/components/inquiry/inquiry-badge";
 import { useContactModal } from "@/components/contact/contact-modal-context";
 import { motion, AnimatePresence } from "motion/react";
 import Image from "next/image";
@@ -125,6 +126,7 @@ export function SiteHeader({ locale, settings: _settings }: SiteHeaderProps) {
 
               {/* Right: locale + CTA + mobile toggle */}
               <div className="flex items-center gap-2">
+                <InquiryBadge />
                 <LocaleSwitcher currentLocale={locale} />
 
                 {/* Primary CTA — desktop only */}
