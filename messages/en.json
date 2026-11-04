@@ -78,25 +78,51 @@
         "tab": "Bathroom",
         "title": "Bathroom",
         "desc": "Warmth and comfort in the bathroom: underfloor heating, towel radiators and smart temperature control.",
-        "items": ["Underfloor heating", "Towel radiators", "Temperature controls", "Buffer tanks", "Manifold cabinets"]
+        "links": {
+          "radiators": "Bathroom radiators",
+          "electricFloor": "Electric underfloor heating",
+          "floor": "Underfloor heating",
+          "thermostats": "Room thermostats",
+          "hotWater": "Hot water cylinders",
+          "boilers": "Water heaters"
+        }
       },
       "living": {
         "tab": "Living room",
         "title": "Living room",
         "desc": "Silent and efficient climate control: heating in winter, cooling in summer, without compromise.",
-        "items": ["Fan coil units", "Underfloor heating", "Panel radiators", "Room controls"]
+        "links": {
+          "fancoils": "Fan coil units",
+          "fancoilControls": "Fan coil controls",
+          "floor": "Underfloor heating",
+          "wifi": "Wi-Fi thermostats",
+          "thermostats": "Room thermostats"
+        }
       },
       "bedroom": {
         "tab": "Bedroom",
         "title": "Bedroom",
         "desc": "Comfortable temperature without noise: underfloor heating and silent systems for peaceful rest.",
-        "items": ["Underfloor heating", "Silent fan coil units", "Room thermostats", "Towel radiators"]
+        "links": {
+          "floor": "Underfloor heating",
+          "fancoils": "Silent fan coil units",
+          "thermostats": "Room thermostats",
+          "radiators": "Radiators",
+          "electricFloor": "Electric underfloor heating"
+        }
       },
       "technical": {
         "tab": "Technical room",
         "title": "Technical room",
         "desc": "Compact and smart installation: manifolds, cabinets and controls all in one place.",
-        "items": ["Underfloor heating manifolds", "Manifold cabinets", "Control equipment", "Flue pipes and fittings", "Buffer tanks"]
+        "links": {
+          "manifolds": "Underfloor heating manifolds",
+          "cabinets": "Manifold cabinets",
+          "controlUnits": "Base units and actuators",
+          "tanks": "Tanks and buffer tanks",
+          "mixing": "Mixing valves and actuators",
+          "flues": "Flue pipes and fittings"
+        }
       }
     }
   },

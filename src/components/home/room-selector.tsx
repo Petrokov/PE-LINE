@@ -19,13 +19,59 @@ const PIN_POSITION: Record<RoomKey, { left: string; top: string }> = {
 
 const EASE = "cubic-bezier(0.32,0.72,0,1)";
 
+type RoomLink = { id: string; category: string; types?: string[] };
+
+/**
+ * What each room links to: a category page, narrowed to product types where it helps
+ * (keys from src/lib/product-types.ts). Labels are home.rooms.<room>.links.<id>.
+ */
+const ROOM_LINKS: Record<RoomKey, RoomLink[]> = {
+  bathroom: [
+    { id: "radiators", category: "radijatori" },
+    { id: "electricFloor", category: "podno-grijanje", types: ["grijace-mreze"] },
+    { id: "floor", category: "podno-grijanje" },
+    { id: "thermostats", category: "regulacije" },
+    { id: "hotWater", category: "spremnici", types: ["spremnici-tople-vode"] },
+    { id: "boilers", category: "bojleri" },
+  ],
+  living: [
+    { id: "fancoils", category: "ventilokonvektori", types: ["ventilokonvektori"] },
+    { id: "fancoilControls", category: "ventilokonvektori", types: ["regulacija"] },
+    { id: "floor", category: "podno-grijanje" },
+    { id: "wifi", category: "regulacije", types: ["wifi"] },
+    { id: "thermostats", category: "regulacije" },
+  ],
+  bedroom: [
+    { id: "floor", category: "podno-grijanje" },
+    { id: "fancoils", category: "ventilokonvektori", types: ["ventilokonvektori"] },
+    { id: "thermostats", category: "regulacije" },
+    { id: "radiators", category: "radijatori" },
+    { id: "electricFloor", category: "podno-grijanje", types: ["grijace-mreze"] },
+  ],
+  technical: [
+    { id: "manifolds", category: "podno-grijanje", types: ["razdjelnici"] },
+    { id: "cabinets", category: "ormarici" },
+    { id: "controlUnits", category: "podno-grijanje", types: ["bazne-jedinice", "termopogoni"] },
+    { id: "tanks", category: "spremnici", types: ["spremnici-tople-vode", "medjuspremnici"] },
+    { id: "mixing", category: "instalacije", types: ["mijesajuci-ventili", "pogoni"] },
+    { id: "flues", category: "dimovodi" },
+  ],
+};
+
+function roomLinkHref(link: RoomLink) {
+  return {
+    pathname: `/proizvodi/${link.category}`,
+    ...(link.types ? { query: { vrsta: link.types.join(",") } } : {}),
+  };
+}
+
 export function RoomSelector() {
   const t = useTranslations("home");
   const [active, setActive] = useState<RoomKey | null>(null);
 
   const isZoomed = active !== null;
   const origin = active ? PIN_POSITION[active] : { left: "50%", top: "50%" };
-  const items = active ? (t.raw(`rooms.${active}.items`) as string[]) : [];
+  const links = active ? ROOM_LINKS[active] : [];
 
   return (
     <section className="bg-bg-secondary py-16 md:py-20 lg:min-h-[100vh] lg:flex lg:items-center">
@@ -184,13 +230,19 @@ export function RoomSelector() {
                     {t(`rooms.${active}.desc`)}
                   </p>
                   <ul className="flex flex-wrap gap-2 mb-5">
-                    {items.map((item) => (
-                      <li
-                        key={item}
-                        className="text-xs font-semibold text-petrol rounded-full px-3 py-1.5"
-                        style={{ background: "rgba(14,79,95,0.07)" }}
-                      >
-                        {item}
+                    {links.map((link) => (
+                      <li key={link.id}>
+                        <Link
+                          href={roomLinkHref(link)}
+                          className="group/link inline-flex items-center gap-1.5 text-xs font-semibold text-petrol rounded-full pl-3 pr-2.5 py-1.5 bg-petrol/[0.07] transition-colors hover:bg-petrol hover:text-white"
+                        >
+                          {t(`rooms.${active}.links.${link.id}`)}
+                          <ArrowRight
+                            size={11}
+                            strokeWidth={2}
+                            className="transition-transform group-hover/link:translate-x-0.5"
+                          />
+                        </Link>
                       </li>
                     ))}
                   </ul>

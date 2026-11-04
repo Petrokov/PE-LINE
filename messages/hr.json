@@ -78,25 +78,51 @@
         "tab": "Kupaonica",
         "title": "Kupaonica",
         "desc": "Toplina i ugoda u kupaonici: podno grijanje, ručnik radijatori i pametna regulacija temperature.",
-        "items": ["Podno grijanje", "Ručnik radijatori", "Regulacija temperature", "Pufer spremnici", "Ormarići za razdjelnik"]
+        "links": {
+          "radiators": "Kupaonski radijatori",
+          "electricFloor": "Električno podno grijanje",
+          "floor": "Podno grijanje",
+          "thermostats": "Sobni termostati",
+          "hotWater": "Spremnici tople vode",
+          "boilers": "Bojleri"
+        }
       },
       "living": {
         "tab": "Dnevni boravak",
         "title": "Dnevni boravak",
         "desc": "Tiha i učinkovita klima: grijanje zimi, osvježenje ljeti, bez buke i bez kompromisa.",
-        "items": ["Ventilokonvektori", "Podno grijanje", "Panelni radijatori", "Sobna regulacija"]
+        "links": {
+          "fancoils": "Ventilokonvektori",
+          "fancoilControls": "Regulacija ventilokonvektora",
+          "floor": "Podno grijanje",
+          "wifi": "Wi-Fi termostati",
+          "thermostats": "Sobni termostati"
+        }
       },
       "bedroom": {
         "tab": "Spavaća soba",
         "title": "Spavaća soba",
         "desc": "Ugodna temperatura bez buke: podno grijanje i tihi sustavi za miran odmor.",
-        "items": ["Podno grijanje", "Tihi ventilokonvektori", "Sobni termostati", "Ručnik radijatori"]
+        "links": {
+          "floor": "Podno grijanje",
+          "fancoils": "Tihi ventilokonvektori",
+          "thermostats": "Sobni termostati",
+          "radiators": "Radijatori",
+          "electricFloor": "Električno podno grijanje"
+        }
       },
       "technical": {
         "tab": "Tehnička prostorija",
         "title": "Tehnička prostorija",
         "desc": "Kompaktna i pametna ugradnja: razdjelnici, ormarići i regulacija na jednom mjestu.",
-        "items": ["Razdjelnici podnog grijanja", "Ormarići za razdjelnik", "Regulacijska oprema", "Dimovodi i priključci", "Pufer spremnici"]
+        "links": {
+          "manifolds": "Razdjelnici podnog grijanja",
+          "cabinets": "Ormarići za razdjelnik",
+          "controlUnits": "Bazne jedinice i termopogoni",
+          "tanks": "Spremnici i međuspremnici",
+          "mixing": "Miješajući ventili i pogoni",
+          "flues": "Dimovodi i priključci"
+        }
       }
     }
   },

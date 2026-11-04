@@ -78,25 +78,51 @@
         "tab": "Kopalnica",
         "title": "Kopalnica",
         "desc": "Toplota in udobje v kopalnici: talno ogrevanje, grelniki brisač in pametna regulacija temperature.",
-        "items": ["Talno ogrevanje", "Grelniki brisač", "Regulacija temperature", "Pufer zbiralniki", "Razdelilne omarice"]
+        "links": {
+          "radiators": "Kopalniški radiatorji",
+          "electricFloor": "Električno talno ogrevanje",
+          "floor": "Talno ogrevanje",
+          "thermostats": "Sobni termostati",
+          "hotWater": "Hranilniki sanitarne vode",
+          "boilers": "Bojlerji"
+        }
       },
       "living": {
         "tab": "Dnevna soba",
         "title": "Dnevna soba",
         "desc": "Tiha in učinkovita klima: ogrevanje pozimi, osvežitev poleti, brez hrupa.",
-        "items": ["Ventilatorski konvektorji", "Talno ogrevanje", "Panelni radiatorji", "Sobna regulacija"]
+        "links": {
+          "fancoils": "Ventilatorski konvektorji",
+          "fancoilControls": "Regulacija konvektorjev",
+          "floor": "Talno ogrevanje",
+          "wifi": "Wi-Fi termostati",
+          "thermostats": "Sobni termostati"
+        }
       },
       "bedroom": {
         "tab": "Spalnica",
         "title": "Spalnica",
         "desc": "Prijetna temperatura brez hrupa: talno ogrevanje in tihi sistemi za miren počitek.",
-        "items": ["Talno ogrevanje", "Tihi ventilatorski konvektorji", "Sobni termostati", "Grelniki brisač"]
+        "links": {
+          "floor": "Talno ogrevanje",
+          "fancoils": "Tihi ventilatorski konvektorji",
+          "thermostats": "Sobni termostati",
+          "radiators": "Radiatorji",
+          "electricFloor": "Električno talno ogrevanje"
+        }
       },
       "technical": {
         "tab": "Tehnična soba",
         "title": "Tehnična soba",
         "desc": "Kompaktna in pametna vgradnja: razdelilniki, omarice in regulacija na enem mestu.",
-        "items": ["Razdelilniki talnega ogrevanja", "Omarice za razdelilnik", "Regulacijska oprema", "Dimovodi in priključki", "Puferski zbiralniki"]
+        "links": {
+          "manifolds": "Razdelilniki talnega ogrevanja",
+          "cabinets": "Omarice za razdelilnik",
+          "controlUnits": "Osnovne enote in termični pogoni",
+          "tanks": "Hranilniki",
+          "mixing": "Mešalni ventili in pogoni",
+          "flues": "Dimovodi in priključki"
+        }
       }
     }
   },
