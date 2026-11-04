@@ -6,9 +6,12 @@ import {
   getCategories,
   getCategoryPreviews,
   getProductCounts,
+  getTypeCounts,
 } from "@/lib/queries";
+import { parseTypes } from "@/lib/product-types";
 import { ProductCard } from "@/components/products/product-card";
 import { CategoryFilter } from "@/components/products/category-filter";
+import { TypeFilter } from "@/components/products/type-filter";
 import { Pagination } from "@/components/products/pagination";
 import { ProductsHero } from "@/components/products/products-hero";
 import type { Metadata } from "next";
@@ -73,12 +76,13 @@ export default async function ProizvodiPage({
   const requestedPage = Number.parseInt(firstParam(query.stranica) ?? "1", 10) || 1;
   // Capped so a pasted wall of text cannot turn into an expensive comparison.
   const search = firstParam(query.trazi)?.trim().slice(0, 100) || undefined;
+  // Types only mean something inside a category; unknown keys are dropped.
+  const types = parseTypes(activeCategory?.slug, firstParam(query.vrsta));
 
-  const products = await getAllProducts({
-    categoryId: activeCategory?.id,
-    search,
-    page: requestedPage,
-  });
+  const [products, typeCounts] = await Promise.all([
+    getAllProducts({ categoryId: activeCategory?.id, types, search, page: requestedPage }),
+    activeCategory ? getTypeCounts(activeCategory.id) : Promise.resolve({}),
+  ]);
   if (products.page > products.pageCount) notFound();
 
   const filterOptions = categories
@@ -107,7 +111,23 @@ export default async function ProizvodiPage({
           )}
         </div>
 
-        <CategoryFilter options={filterOptions} active={activeCategory?.slug} search={search} />
+        <CategoryFilter
+          options={filterOptions}
+          active={activeCategory?.slug}
+          search={search}
+          types={types}
+        />
+
+        {activeCategory && (
+          <TypeFilter
+            categorySlug={activeCategory.slug}
+            counts={typeCounts}
+            active={types}
+            pathname="/proizvodi"
+            query={{ kategorija: activeCategory.slug, trazi: search }}
+            locale={locale}
+          />
+        )}
 
         {products.items.length === 0 ? (
           <p className="text-muted text-center py-16">
@@ -129,6 +149,7 @@ export default async function ProizvodiPage({
               page={products.page}
               pageCount={products.pageCount}
               category={activeCategory?.slug}
+              types={types}
               search={search}
               locale={locale}
             />

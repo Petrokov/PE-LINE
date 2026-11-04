@@ -9,6 +9,8 @@ interface CategoryFilterProps {
   options: Array<{ slug: string; name: string; count: number }>;
   active?: string;
   search?: string;
+  /** Selected product types of the active category, kept when searching. */
+  types?: string[];
 }
 
 /**
@@ -17,16 +19,18 @@ interface CategoryFilterProps {
  * shareable and the server does the filtering. The search is a real GET form,
  * so it also works without JavaScript.
  */
-export function CategoryFilter({ options, active, search }: CategoryFilterProps) {
+export function CategoryFilter({ options, active, search, types = [] }: CategoryFilterProps) {
   const t = useTranslations("products");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
   // Changing either filter always returns to page one; an old page number
   // would often land past the end of the shorter result set.
-  function go(next: { kategorija?: string; trazi?: string }) {
+  // Types belong to one category, so only a search inside it keeps them.
+  function go(next: { kategorija?: string; trazi?: string; vrsta?: string }) {
     const query: Record<string, string> = {};
     if (next.kategorija) query.kategorija = next.kategorija;
+    if (next.vrsta) query.vrsta = next.vrsta;
     if (next.trazi) query.trazi = next.trazi;
     startTransition(() => router.push({ pathname: "/proizvodi", query }, { scroll: false }));
   }
@@ -70,11 +74,16 @@ export function CategoryFilter({ options, active, search }: CategoryFilterProps)
         onSubmit={(event) => {
           event.preventDefault();
           const value = new FormData(event.currentTarget).get("trazi");
-          go({ kategorija: active, trazi: typeof value === "string" ? value.trim() : "" });
+          go({
+            kategorija: active,
+            vrsta: types.join(","),
+            trazi: typeof value === "string" ? value.trim() : "",
+          });
         }}
       >
         {/* Keeps the category when the form is sent without JavaScript. */}
         {active ? <input type="hidden" name="kategorija" value={active} /> : null}
+        {active && types.length ? <input type="hidden" name="vrsta" value={types.join(",")} /> : null}
         <label htmlFor="product-search" className="sr-only">
           {t("searchLabel")}
         </label>

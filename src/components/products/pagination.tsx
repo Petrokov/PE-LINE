@@ -7,6 +7,7 @@ interface PaginationProps {
   pageCount: number;
   /** Active category filter and search, kept while paging. */
   category?: string;
+  types?: string[];
   search?: string;
   locale: string;
 }
@@ -16,13 +17,14 @@ interface PaginationProps {
  * stays shareable and works without JavaScript. Links jump back to the top of
  * the listing rather than the top of the page.
  */
-export async function Pagination({ page, pageCount, category, search, locale }: PaginationProps) {
+export async function Pagination({ page, pageCount, category, types = [], search, locale }: PaginationProps) {
   if (pageCount <= 1) return null;
   const t = await getTranslations({ locale, namespace: "products" });
 
   const hrefFor = (target: number) => {
     const query: Record<string, string> = {};
     if (category) query.kategorija = category;
+    if (types.length) query.vrsta = types.join(",");
     if (search) query.trazi = search;
     if (target > 1) query.stranica = String(target);
     return { pathname: "/proizvodi", query, hash: "svi-proizvodi" };

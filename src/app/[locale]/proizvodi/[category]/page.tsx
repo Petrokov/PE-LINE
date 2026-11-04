@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { getCategories, getCategoryBySlug } from "@/lib/queries";
 import { ProductCard } from "@/components/products/product-card";
+import { TypeFilter } from "@/components/products/type-filter";
+import { parseTypes } from "@/lib/product-types";
 import { FadeIn } from "@/components/ui/motion-wrapper";
 import { Link } from "@/lib/navigation";
 import { ChevronRight } from "lucide-react";
@@ -38,18 +40,28 @@ export async function generateMetadata({
 
 export default async function CategoryPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string; category: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { locale, category: categorySlug } = await params;
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: "products" });
+  const query = await searchParams;
 
   const category = await getCategoryBySlug(categorySlug);
   if (!category) notFound();
 
   const name = localized(category, locale as Locale);
-  const products = category.products;
+  const rawTypes = query.vrsta;
+  const types = parseTypes(categorySlug, Array.isArray(rawTypes) ? rawTypes[0] : rawTypes);
+  // The category's products are all loaded already, so counts and the filter come from them.
+  const typeCounts: Record<string, number> = {};
+  for (const p of category.products) if (p.product_type) typeCounts[p.product_type] = (typeCounts[p.product_type] ?? 0) + 1;
+  const products = types.length
+    ? category.products.filter((p) => p.product_type && types.includes(p.product_type))
+    : category.products;
 
   return (
     <div className="bg-bg section-lg">
@@ -80,12 +92,23 @@ export default async function CategoryPage({
           )}
         </FadeIn>
 
+        <div id="svi-proizvodi" className="scroll-mt-28">
+          <TypeFilter
+            categorySlug={categorySlug}
+            counts={typeCounts}
+            active={types}
+            pathname={`/proizvodi/${categorySlug}`}
+            locale={locale}
+          />
+        </div>
+
         {products.length === 0 ? (
           <p className="text-muted text-center py-16">{t("noProducts")}</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             {products.map((product, i) => (
-              <FadeIn key={product.id} delay={i * 0.06} className="h-full">
+              // Stagger only the first row or two; long lists would otherwise trail in for seconds.
+              <FadeIn key={product.id} delay={Math.min(i, 8) * 0.06} className="h-full">
                 <ProductCard
                   product={product}
                   locale={locale as Locale}

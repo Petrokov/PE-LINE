@@ -138,7 +138,7 @@ export const getCategoryBySlug = cache(async function getCategoryBySlug(
       .order("sort_order", { ascending: true }),
     supabase
       .from("products")
-      .select("id, name_hr, name_sl, name_en, slug, images, price_range, featured")
+      .select("id, name_hr, name_sl, name_en, slug, images, price_range, featured, product_type")
       .eq("category_id", category.id)
       .eq("active", true)
       .order("name_hr", { ascending: true }),
@@ -189,14 +189,17 @@ function matchesSearch(
   );
 }
 
-/** One page of every product by name, optionally narrowed to one category and a search term. */
+/** One page of every product by name, optionally narrowed to one category, its types and a search term. */
 export async function getAllProducts({
   categoryId,
+  types = [],
   search,
   page = 1,
   pageSize = PRODUCTS_PER_PAGE,
 }: {
   categoryId?: string;
+  /** Product type keys within the category (any of them). */
+  types?: string[];
   /** Matches the product name or its catalogue number. */
   search?: string;
   page?: number;
@@ -215,6 +218,7 @@ export async function getAllProducts({
       .eq("active", true)
       .order("name_hr", { ascending: true });
     if (categoryId) query = query.eq("category_id", categoryId);
+    if (types.length) query = query.in("product_type", types);
 
     const rows = (unwrap(await query) as unknown as Product[] | null) ?? [];
     const matches = rows.filter((product) => matchesSearch(product, search));
@@ -233,6 +237,7 @@ export async function getAllProducts({
     .order("name_hr", { ascending: true })
     .range(from, from + pageSize - 1);
   if (categoryId) query = query.eq("category_id", categoryId);
+  if (types.length) query = query.in("product_type", types);
 
   const { data, count, error } = await query;
   // Asking past the last row is a PostgREST error, not an empty page; report it as one.
@@ -281,6 +286,18 @@ export async function getCategoryPreviews(perCategory = 4): Promise<Record<strin
       .map(({ product }) => product);
   }
   return previews;
+}
+
+/** Active product count per type key in one category, for the type filter. */
+export async function getTypeCounts(categoryId: string): Promise<Record<string, number>> {
+  const supabase = createPublicClient();
+  const rows =
+    (unwrap(
+      await supabase.from("products").select("product_type").eq("category_id", categoryId).eq("active", true)
+    ) as Array<{ product_type: string | null }> | null) ?? [];
+  const counts: Record<string, number> = {};
+  for (const row of rows) if (row.product_type) counts[row.product_type] = (counts[row.product_type] ?? 0) + 1;
+  return counts;
 }
 
 /** Every active product's URL parts and last change, for the sitemap. */

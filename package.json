@@ -8,7 +8,8 @@
     "start": "next start",
     "sap:import": "node scripts/sap-import.ts",
     "sap:images": "node scripts/sap-images.ts",
-    "translations:apply": "node scripts/apply-translations.ts"
+    "translations:apply": "node scripts/apply-translations.ts",
+    "types:apply": "node scripts/apply-product-types.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
