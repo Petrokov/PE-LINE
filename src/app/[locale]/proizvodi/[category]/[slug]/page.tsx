@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { getProductBySlug } from "@/lib/queries";
+import { getProductBySlug, getRelatedPool } from "@/lib/queries";
+import { complementaryProducts, similarProducts } from "@/lib/related-products";
+import { RelatedProducts } from "@/components/products/related-products";
 import { ProductSpecs } from "@/components/products/product-specs";
 import { ProductGallery } from "@/components/products/product-gallery";
 import { ProductInquiryActions } from "@/components/inquiry/product-inquiry-actions";
@@ -59,8 +61,12 @@ export default async function ProductPage({ params }: { params: Params }) {
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: "products" });
 
-  const product = await getProductBySlug(categorySlug, slug);
+  const [product, pool] = await Promise.all([getProductBySlug(categorySlug, slug), getRelatedPool()]);
   if (!product) notFound();
+
+  const self = { ...product, categorySlug };
+  const complementary = complementaryProducts(self, pool);
+  const similar = similarProducts(self, pool, complementary.map((p) => p.id));
 
   const name = localized(product, locale as Locale);
   const categoryName = product.category ? localized(product.category, locale as Locale) : "";
@@ -130,6 +136,21 @@ export default async function ProductPage({ params }: { params: Params }) {
             </div>
           </FadeInRight>
         </div>
+
+        <RelatedProducts
+          id="uz-proizvod"
+          title={t("complementaryTitle")}
+          subtitle={t("complementarySubtitle")}
+          products={complementary}
+          locale={locale as Locale}
+        />
+        <RelatedProducts
+          id="slicni-proizvodi"
+          title={t("similarTitle")}
+          subtitle={t("similarSubtitle")}
+          products={similar}
+          locale={locale as Locale}
+        />
       </div>
     </div>
   );

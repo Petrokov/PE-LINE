@@ -1,0 +1,7 @@
+{
+  "_readme": "Manual overrides for 'Uz ovaj proizvod' on the product page, keyed by SAP item code. add: shown first, in this order. remove: never shown for this product. only: true = show only 'add', skip the automatic rules (src/lib/related-products.ts).",
+  "1037518": {
+    "add": ["1035896", "1035898", "1035901", "1035903", "1035905", "1035907", "1035909", "1035910"],
+    "only": true
+  }
+}

@@ -340,6 +340,7 @@ export const getProductBySlug = cache(async function getProductBySlug(
       .select(
         "id, name_hr, name_sl, name_en, slug, description_hr, description_sl, description_en, " +
           "images, specs, price_range, featured, categoryId:category_id, sap_description, unit, active, " +
+          "product_type, sap_item_code, " +
           "category:categories(id, name_hr, name_sl, name_en, slug)"
       )
       .eq("slug", slug)
@@ -352,6 +353,25 @@ export const getProductBySlug = cache(async function getProductBySlug(
   // Not a real product: resolve it only as a display product the category is currently listing.
   const category = await getCategoryBySlug(categorySlug);
   return category?.products.find((p) => p.slug === slug) ?? null;
+});
+
+export type RelatedPoolItem = Product & { categorySlug: string };
+
+/** Every active product, compact, for picking related products on a product page. */
+export const getRelatedPool = cache(async function getRelatedPool(): Promise<RelatedPoolItem[]> {
+  const supabase = createPublicClient();
+  const rows = unwrap(
+    await supabase
+      .from("products")
+      .select(
+        "id, name_hr, name_sl, name_en, slug, images, price_range, featured, product_type, sap_item_code, " +
+          "category:categories(slug)"
+      )
+      .eq("active", true)
+  ) as unknown as Array<Product & { category: { slug: string } | null }>;
+  return rows
+    .filter((r) => r.category?.slug)
+    .map((r) => ({ ...r, specs: [], categorySlug: r.category!.slug }));
 });
 
 export async function getTeam(): Promise<TeamMember[]> {

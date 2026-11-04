@@ -42,6 +42,7 @@ export type Product = LocalizedDoc & {
   /** Raw SAP article name; name_hr is the edited web name. */
   sap_name?: string | null;
   unit?: string | null;
+  sap_item_code?: string | null;
   /** Type within the category, a key from src/lib/product-types.ts. */
   product_type?: string | null;
 };
