@@ -136,6 +136,7 @@
     "similarSubtitle": "Drugi artikli iste vrste.",
     "railPrev": "Prejšnji izdelki",
     "railNext": "Naslednji izdelki",
+    "railGoTo": "Prikaži od izdelka {number}",
     "heroStatement": "Pametne rešitve za ogrevanje in hlajenje",
     "heroLabel": "Kategorije izdelkov",
     "viewCategory": "Poglej {name}",

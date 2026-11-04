@@ -136,6 +136,7 @@
     "similarSubtitle": "Other items of the same type.",
     "railPrev": "Previous products",
     "railNext": "Next products",
+    "railGoTo": "Show from product {number}",
     "heroStatement": "Smart solutions for heating and cooling",
     "heroLabel": "Product categories",
     "viewCategory": "View {name}",
