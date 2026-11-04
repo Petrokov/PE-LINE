@@ -134,6 +134,8 @@
     "complementarySubtitle": "Izdelki, ki se dopolnjujejo in vgrajujejo skupaj s tem artiklom.",
     "similarTitle": "Podobni izdelki",
     "similarSubtitle": "Drugi artikli iste vrste.",
+    "railPrev": "Prejšnji izdelki",
+    "railNext": "Naslednji izdelki",
     "heroStatement": "Pametne rešitve za ogrevanje in hlajenje",
     "heroLabel": "Kategorije izdelkov",
     "viewCategory": "Poglej {name}",
