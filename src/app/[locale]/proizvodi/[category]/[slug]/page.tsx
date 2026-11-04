@@ -143,7 +143,6 @@ export default async function ProductPage({ params }: { params: Params }) {
           subtitle={t("complementarySubtitle")}
           products={complementary}
           locale={locale as Locale}
-          variant="carousel"
         />
         <RelatedProducts
           id="slicni-proizvodi"
