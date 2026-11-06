@@ -88,6 +88,7 @@ export function InquiryListView() {
         <ContactForm
           key={items.map((item) => `${item.slug}:${item.qty}`).join(",")}
           prefillMessage={prefillMessage}
+          items={items.map((item) => ({ slug: item.slug, qty: item.qty }))}
           onSuccess={handleSuccess}
         />
       </div>

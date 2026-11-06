@@ -8,6 +8,7 @@
     "start": "next start",
     "sap:import": "node scripts/sap-import.ts",
     "sap:images": "node scripts/sap-images.ts",
+    "sap:prices": "node scripts/sap-prices.ts",
     "translations:apply": "node scripts/apply-translations.ts",
     "types:apply": "node scripts/apply-product-types.ts"
   },

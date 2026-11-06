@@ -137,7 +137,9 @@ export function ProductCard({ product, locale, categorySlug }: ProductCardProps)
                 open(`${tInquiry("prefillIntro")}
 ${tInquiry("prefillLine", { name, qty })}
 
-`)
+`, [
+                  { slug: product.slug, qty },
+                ])
               }
               className="flex h-9 w-full items-center justify-center gap-1.5 rounded-full bg-petrol text-xs font-semibold text-white transition-colors hover:bg-petrol-dark active:scale-[0.98] cursor-pointer"
             >

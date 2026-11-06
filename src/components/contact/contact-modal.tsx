@@ -15,7 +15,7 @@ interface ContactModalProps {
 }
 
 export function ContactModal({ settings }: ContactModalProps) {
-  const { isOpen, close, prefillMessage } = useContactModal();
+  const { isOpen, close, prefillMessage, items } = useContactModal();
   const t = useTranslations("contact");
 
   useEffect(() => {
@@ -134,7 +134,7 @@ export function ContactModal({ settings }: ContactModalProps) {
 
                 {/* Right: form */}
                 <div>
-                  <ContactForm prefillMessage={prefillMessage} />
+                  <ContactForm prefillMessage={prefillMessage} items={items} />
                 </div>
               </div>
             </div>

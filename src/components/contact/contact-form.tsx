@@ -13,10 +13,12 @@ const fieldClass =
 
 interface ContactFormProps {
   prefillMessage?: string;
+  /** Products the inquiry is about; the server mails the customer an offer for them. */
+  items?: { slug: string; qty: number }[];
   onSuccess?: () => void;
 }
 
-export function ContactForm({ prefillMessage = "", onSuccess }: ContactFormProps) {
+export function ContactForm({ prefillMessage = "", items, onSuccess }: ContactFormProps) {
   const t = useTranslations("contact");
   const [state, action, isPending] = useActionState(submitInquiry, initialState);
 
@@ -26,6 +28,15 @@ export function ContactForm({ prefillMessage = "", onSuccess }: ContactFormProps
 
   return (
     <form action={action} className="space-y-7">
+      {items && items.length > 0 && <input type="hidden" name="items" value={JSON.stringify(items)} />}
+      {/* Honeypot: hidden from people, bots fill it in. */}
+      <input
+        name="website"
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+        className="absolute -left-[9999px] h-0 w-0 opacity-0"
+      />
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-7">
         <div>
           <label className="block text-xs font-medium text-muted mb-2">{t("name")} *</label>

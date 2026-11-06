@@ -38,7 +38,7 @@ export function ProductInquiryActions({ slug, categorySlug, title, imageUrl }: P
         {/* Sends an inquiry for this product alone, without touching the list. */}
         <button
           type="button"
-          onClick={() => open(`${t("prefillIntro")}\n${t("prefillLine", { name: title, qty })}\n\n`)}
+          onClick={() => open(`${t("prefillIntro")}\n${t("prefillLine", { name: title, qty })}\n\n`, [{ slug, qty }])}
           className="flex h-[52px] flex-1 min-w-[180px] whitespace-nowrap items-center justify-center gap-2 rounded-full bg-petrol px-6 text-sm font-semibold text-white transition-colors hover:bg-petrol-dark active:scale-[0.98] cursor-pointer"
         >
           <Send size={15} strokeWidth={1.5} />
