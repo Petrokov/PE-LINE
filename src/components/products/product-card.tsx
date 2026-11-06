@@ -2,11 +2,13 @@
 
 import { useTranslations } from "next-intl";
 import { Link } from "@/lib/navigation";
+import { useState } from "react";
 import { ArrowRight, Check, ClipboardList, Send } from "lucide-react";
 import type { Product, Locale } from "@/lib/types";
 import { localized } from "@/lib/types";
 import { useContactModal } from "@/components/contact/contact-modal-context";
-import { addToInquiryList, useInquiryListQuantity } from "@/lib/inquiry-list";
+import { addToInquiryList, setInquiryQuantity, useInquiryListQuantity } from "@/lib/inquiry-list";
+import { QuantityStepper } from "@/components/inquiry/quantity-stepper";
 import { productThumbUrl } from "@/lib/product-images";
 
 interface ProductCardProps {
@@ -21,7 +23,12 @@ export function ProductCard({ product, locale, categorySlug }: ProductCardProps)
   const { open } = useContactModal();
   const name = localized(product, locale);
   const image = productThumbUrl(product.images?.[0]);
-  const added = useInquiryListQuantity(product.slug) > 0;
+  const listedQty = useInquiryListQuantity(product.slug);
+  const added = listedQty > 0;
+  // Same behaviour as the product page: the stepper picks the amount to add,
+  // and once listed it edits the quantity already on the inquiry list.
+  const [draftQty, setDraftQty] = useState(1);
+  const qty = added ? listedQty : draftQty;
 
   return (
     <div className="group h-full">
@@ -103,28 +110,39 @@ export function ProductCard({ product, locale, categorySlug }: ProductCardProps)
             </div>
           </Link>
 
-          <div className="px-4 pb-4 flex items-center gap-2">
+          <div className="px-4 pb-4 space-y-2">
+            <div className="flex items-center gap-2">
+              <QuantityStepper
+                value={qty}
+                itemLabel={name}
+                onChange={(next) => (added ? setInquiryQuantity(product.slug, next) : setDraftQty(next))}
+                className="h-9"
+              />
+              <button
+                type="button"
+                disabled={added}
+                onClick={() =>
+                  addToInquiryList({ slug: product.slug, categorySlug, title: name, imageUrl: image ?? "" }, draftQty)
+                }
+                aria-label={added ? tInquiry("addedAria", { name }) : tInquiry("addAria", { name })}
+                className="flex h-9 flex-1 min-w-0 items-center justify-center gap-1.5 rounded-full border border-line bg-white px-2 text-xs font-semibold text-ink whitespace-nowrap transition-colors hover:border-petrol disabled:cursor-default disabled:border-champagne disabled:text-champagne active:scale-[0.98] cursor-pointer"
+              >
+                {added ? <Check size={14} strokeWidth={1.5} /> : <ClipboardList size={14} strokeWidth={1.5} />}
+                {added ? tInquiry("added") : tInquiry("add")}
+              </button>
+            </div>
             <button
               type="button"
               onClick={() =>
-                open(`${tInquiry("prefillIntro")}\n${tInquiry("prefillLine", { name, qty: 1 })}\n\n`)
+                open(`${tInquiry("prefillIntro")}
+${tInquiry("prefillLine", { name, qty })}
+
+`)
               }
-              className="flex h-9 flex-1 items-center justify-center gap-1.5 rounded-full bg-petrol text-xs font-semibold text-white transition-colors hover:bg-petrol-dark active:scale-[0.98] cursor-pointer"
+              className="flex h-9 w-full items-center justify-center gap-1.5 rounded-full bg-petrol text-xs font-semibold text-white transition-colors hover:bg-petrol-dark active:scale-[0.98] cursor-pointer"
             >
               <Send size={13} strokeWidth={1.5} />
               {tInquiry("sendNow")}
-            </button>
-            <button
-              type="button"
-              disabled={added}
-              onClick={() =>
-                addToInquiryList({ slug: product.slug, categorySlug, title: name, imageUrl: image ?? "" })
-              }
-              aria-label={added ? tInquiry("addedAria", { name }) : tInquiry("addAria", { name })}
-              title={added ? tInquiry("added") : tInquiry("add")}
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-line bg-white text-muted transition-colors hover:border-petrol hover:text-ink disabled:cursor-default disabled:border-champagne disabled:text-champagne active:scale-95 cursor-pointer"
-            >
-              {added ? <Check size={15} strokeWidth={1.5} /> : <ClipboardList size={15} strokeWidth={1.5} />}
             </button>
           </div>
         </div>
